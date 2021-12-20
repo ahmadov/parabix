@@ -26,9 +26,15 @@ include_directories(
 # ---------------------------------------------------------------------------
 
 set(INCLUDE_H
+    "${CMAKE_SOURCE_DIR}/include/stream/basis_bit_stream.h"
+    "${CMAKE_SOURCE_DIR}/include/stream/cc_bit_stream.h"
+    "${CMAKE_SOURCE_DIR}/include/stream/marker_bit_stream.h"
 )
 
 set(SRC_CC
+    "${CMAKE_SOURCE_DIR}/src/stream/basis_bit_stream.cc"
+    "${CMAKE_SOURCE_DIR}/src/stream/cc_bit_stream.cc"
+    "${CMAKE_SOURCE_DIR}/src/stream/marker_bit_stream.cc"
     "${CMAKE_SOURCE_DIR}/tools/vgrep.cc"
 )
 
