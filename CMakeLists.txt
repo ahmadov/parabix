@@ -29,12 +29,14 @@ set(INCLUDE_H
     "${CMAKE_SOURCE_DIR}/include/stream/basis_bit_stream.h"
     "${CMAKE_SOURCE_DIR}/include/stream/cc_bit_stream.h"
     "${CMAKE_SOURCE_DIR}/include/stream/marker_bit_stream.h"
+    "${CMAKE_SOURCE_DIR}/include/parser/re_parser.h"
 )
 
 set(SRC_CC
     "${CMAKE_SOURCE_DIR}/src/stream/basis_bit_stream.cc"
     "${CMAKE_SOURCE_DIR}/src/stream/cc_bit_stream.cc"
     "${CMAKE_SOURCE_DIR}/src/stream/marker_bit_stream.cc"
+    "${CMAKE_SOURCE_DIR}/src/parser/re_parser.cc"
     "${CMAKE_SOURCE_DIR}/tools/vgrep.cc"
 )
 
@@ -42,11 +44,11 @@ set(SRC_CC
 # Targets
 # ---------------------------------------------------------------------------
 
-add_library(regex_vectorization STATIC ${SRC_CC} ${QUERYC_SRC})
+add_library(regex_vectorization STATIC ${SRC_CC})
 target_link_libraries(regex_vectorization Threads::Threads)
 
 add_executable(vgrep tools/vgrep.cc)
-target_link_libraries(regex_vectorization)
+target_link_libraries(vgrep regex_vectorization)
 
 # ---------------------------------------------------------------------------
 # Linting
