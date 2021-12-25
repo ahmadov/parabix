@@ -1,4 +1,5 @@
 #include "parser/re_parser.h"
+#include <cassert>
 
 using ReParser = parser::ReParser;
 using CCBitStream = stream::CCBitStream;
@@ -10,11 +11,12 @@ void ReParser::parse() {
       while (!forward_match(']')) {
         range.push_back(input_[pos_]);
       }
+      assert(range.size() == 3);
       if (forward_match('*')) {
-        cc_list_.emplace_back(CCBitStream(range, true));
+        cc_list_.emplace_back(CCBitStream(range[0], range[2], true));
         forward();
       } else {
-        cc_list_.emplace_back(CCBitStream(range));
+        cc_list_.emplace_back(CCBitStream(range[0], range[2]));
       }
     } else { // single character
       char current = input_[pos_];

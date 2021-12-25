@@ -17,19 +17,30 @@ namespace codegen {
     private:
     std::unique_ptr<BitwiseExpression> createBitPattern(uint8_t pattern, uint8_t bits);
 
-    std::unique_ptr<Bit> createBit(unsigned bit);
+    std::unique_ptr<BitwiseExpression> createRange(uint8_t low, uint8_t high);
+
+    std::unique_ptr<BitwiseExpression> createLERange(uint8_t bits, uint8_t n);
+
+    std::unique_ptr<BitwiseExpression> createGERange(uint8_t bits, uint8_t n);
+
+    std::unique_ptr<BitwiseExpression> createBoolean(bool value);
+
+    std::unique_ptr<BitwiseExpression> createBit(unsigned bit);
+
+    std::unique_ptr<BitwiseExpression> createSelection(
+        std::unique_ptr<BitwiseExpression> if_expr,
+        std::unique_ptr<BitwiseExpression> true_expr,
+        std::unique_ptr<BitwiseExpression> false_expr
+    );
 
     /// Create & (and) expression
-    std::unique_ptr<AndExpression> createAnd(std::unique_ptr<BitwiseExpression> left, std::unique_ptr<BitwiseExpression> right);
+    std::unique_ptr<BitwiseExpression> createAnd(std::unique_ptr<BitwiseExpression> left, std::unique_ptr<BitwiseExpression> right);
 
     /// Create | (or) expression
-    std::unique_ptr<OrExpression> createOr(std::unique_ptr<BitwiseExpression> left, std::unique_ptr<BitwiseExpression> right);
-
-    /// Create ^ (xor) expression
-    std::unique_ptr<XorExpression> createXor(std::unique_ptr<BitwiseExpression> left, std::unique_ptr<BitwiseExpression> right);
+    std::unique_ptr<BitwiseExpression> createOr(std::unique_ptr<BitwiseExpression> left, std::unique_ptr<BitwiseExpression> right);
 
     /// Create ~ (not) expression
-    std::unique_ptr<NotExpression> createNot(std::unique_ptr<BitwiseExpression> expr);
+    std::unique_ptr<BitwiseExpression> createNot(std::unique_ptr<BitwiseExpression> expr);
   };
 
 } // namespace codegen
