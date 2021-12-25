@@ -1,6 +1,4 @@
 #include "codegen/cc_compiler.h"
-#include <algorithm>
-#include <iostream>
 
 using CCCompiler = codegen::CCCompiler;
 using Bit = codegen::Bit;
@@ -15,17 +13,16 @@ using NotExpression = codegen::NotExpression;
 using CCBitStream = stream::CCBitStream;
 using Type = BitwiseExpression::Type;
 
-void CCCompiler::compile(const std::vector<CCBitStream>& cc_list) {
-  for (auto& cc : cc_list) {
-    auto [low, high] = cc.getRange();
-    if (low == high) {
-      auto expression = createBitPattern(low, SINGLE_CHAR_BITS);
-      std::cout << "single character expression = " << expression->as_string() << std::endl;
-    } else {
-      auto expression = createRange(low, high);
-      std::cout << "range expression            = " << expression->as_string() << std::endl;
-    }
+void CCCompiler::compile(std::unique_ptr<BitwiseExpression> expression) {}
+
+std::unique_ptr<BitwiseExpression> CCCompiler::createBitwiseExpression(const stream::CCBitStream& cc) {
+  auto [low, high] = cc.getRange();
+  if (low != high) {
+    auto expression = createRange(low, high);
+    return std::move(expression);
   }
+  auto expression = createBitPattern(low, SINGLE_CHAR_BITS);
+  return std::move(expression);
 }
 
 std::unique_ptr<BitwiseExpression> CCCompiler::createBitPattern(uint8_t pattern, uint8_t bits) {
@@ -240,4 +237,3 @@ bool CCCompiler::equal_expressions(BitwiseExpression* left, BitwiseExpression* r
   }
   return false;
 }
-

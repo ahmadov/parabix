@@ -3,6 +3,7 @@
 #define INCLUDE_STREAM_CC_BIT_STREAM_H_
 // ---------------------------------------------------------------------------
 #include <ostream>
+#include <sstream>
 #include <string>
 #include <string_view>
 // ---------------------------------------------------------------------------
@@ -26,17 +27,18 @@ class CCBitStream {
   [[nodiscard]] constexpr std::pair<char, char> getRange() const { return {low_, high_}; }
 
   friend std::ostream& operator<<(std::ostream& os, const CCBitStream& cc) {
-    os << "CC([";
-    os << cc.low_;
+    std::stringstream out;
+    out << "CC([";
+    out << cc.low_;
     if (cc.low_ != cc.high_) {
-      os << "-" << cc.high_;
+      out << "-" << cc.high_;
     }
-    os << "]";
+    out << "]";
     if (cc.star_) {
-      os << "*";
+      out << "*";
     }
-    os << ")";
-    return os;
+    out << ")";
+    return os << out.str();
   }
 
   private:

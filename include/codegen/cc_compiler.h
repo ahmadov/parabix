@@ -1,6 +1,7 @@
 #ifndef INCLUDE_CODEGEN_CC_COMPILER_H_
 #define INCLUDE_CODEGEN_CC_COMPILER_H_
 
+#include <algorithm>
 #include <vector>
 
 #include "codegen/ast.h"
@@ -12,7 +13,10 @@ namespace codegen {
 
   class CCCompiler {
     public:
-    void compile(const std::vector<stream::CCBitStream>& cc_list);
+
+    std::unique_ptr<BitwiseExpression> createBitwiseExpression(const stream::CCBitStream& cc);
+
+    void compile(std::unique_ptr<BitwiseExpression> expression);
 
     private:
     std::unique_ptr<BitwiseExpression> createBitPattern(uint8_t pattern, uint8_t bits);

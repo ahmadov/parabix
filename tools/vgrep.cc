@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include "codegen/cc_compiler.h"
 #include "parser/re_parser.h"
 
@@ -17,9 +18,9 @@ int main(int argc, char** argv) {
 
   auto cc_list = parser.getCCs();
   for (auto& cc : cc_list) {
-    std::cout << cc << std::endl;
+    auto expression = compiler.createBitwiseExpression(cc);
+    std::cout << std::setw(10) << std::left << cc << " => " << expression->as_string() << std::endl;
   }
-  compiler.compile(cc_list);
   
   return 0;
 }
