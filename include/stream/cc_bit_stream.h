@@ -27,6 +27,10 @@ class CCBitStream {
     : type_(star ? Type::RANGE_STAR : Type::RANGE)
     , range_(range) {}
 
+  [[nodiscard]] constexpr Type getType() const { return type_; }
+
+  [[nodiscard]] constexpr char getChar() const { return character_; }
+
   friend std::ostream& operator<<(std::ostream& os, const CCBitStream& cc) {
     os << "CC([";
     if (cc.type_ == Type::RANGE || cc.type_ == Type::RANGE_STAR) {
