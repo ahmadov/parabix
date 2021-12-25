@@ -41,6 +41,8 @@ namespace codegen {
 
     /// Create ~ (not) expression
     std::unique_ptr<BitwiseExpression> createNot(std::unique_ptr<BitwiseExpression> expr);
+
+    bool equal_expressions(BitwiseExpression* left, BitwiseExpression* right);
   };
 
 } // namespace codegen

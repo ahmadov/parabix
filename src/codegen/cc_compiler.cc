@@ -7,6 +7,8 @@ using Bit = codegen::Bit;
 using True = codegen::True;
 using False = codegen::False;
 using BitwiseExpression = codegen::BitwiseExpression;
+using BinaryExpression = codegen::BinaryExpression;
+using SelectionExpression = codegen::SelectionExpression;
 using AndExpression = codegen::AndExpression;
 using OrExpression = codegen::OrExpression;
 using NotExpression = codegen::NotExpression;
@@ -132,8 +134,10 @@ std::unique_ptr<BitwiseExpression> CCCompiler::createSelection(
     return createAnd(std::move(if_expr), std::move(true_expr));
   } else if (false_expr->getType() == Type::True) {
     return createOr(createNot(std::move(if_expr)), std::move(true_expr));
+  } else if (equal_expressions(true_expr.get(), false_expr.get())) {
+    return std::move(true_expr);
   }
-  throw std::runtime_error{"not implemented"};
+  return std::make_unique<SelectionExpression>(std::move(if_expr), std::move(true_expr), std::move(false_expr));
 }
 
 std::unique_ptr<BitwiseExpression> CCCompiler::createAnd(std::unique_ptr<BitwiseExpression> left, std::unique_ptr<BitwiseExpression> right) {
@@ -177,6 +181,19 @@ std::unique_ptr<BitwiseExpression> CCCompiler::createOr(std::unique_ptr<BitwiseE
       std::move(dynamic_cast<NotExpression*>(right.get())->child)
     ));
   }
+  if (left->getType() == Type::And && right->getType() == Type::And) {
+    auto left_ptr = dynamic_cast<BinaryExpression*>(left.get());
+    auto right_ptr = dynamic_cast<BinaryExpression*>(right.get());
+    if (equal_expressions(left_ptr->left.get(), right_ptr->left.get())) {
+      return createAnd( std::move(left_ptr->left), createOr( std::move(left_ptr->right), std::move(right_ptr->right) ) );
+    } else if (equal_expressions(left_ptr->right.get(), right_ptr->right.get())) {
+      return createAnd( std::move(left_ptr->right), createOr( std::move(left_ptr->left), std::move(right_ptr->left) ) );
+    } else if (equal_expressions(left_ptr->left.get(), right_ptr->right.get())) {
+      return createAnd( std::move(left_ptr->left), createOr( std::move(left_ptr->right), std::move(right_ptr->left) ) );
+    } else if (equal_expressions(left_ptr->right.get(), right_ptr->left.get())) {
+      return createAnd( std::move(left_ptr->right), createOr( std::move(left_ptr->left), std::move(right_ptr->right) ) );
+    }
+  }
   return std::make_unique<OrExpression>(std::move(left), std::move(right));
 }
 
@@ -192,3 +209,35 @@ std::unique_ptr<BitwiseExpression> CCCompiler::createNot(std::unique_ptr<Bitwise
   }
   return std::make_unique<NotExpression>(std::move(expr));
 }
+
+bool CCCompiler::equal_expressions(BitwiseExpression* left, BitwiseExpression* right) {
+  if (left->getType() == Type::True && right->getType() == Type::True) {
+    return true;
+  }
+  if (left->getType() == Type::False && right->getType() == Type::False) {
+    return true;
+  }
+  if (left->getType() == Type::Bit && right->getType() == Type::Bit) {
+    return dynamic_cast<Bit*>(left)->bit == dynamic_cast<Bit*>(right)->bit;
+  }
+  if (left->getType() == Type::Not && right->getType() == Type::Not) {
+    return equal_expressions(
+      dynamic_cast<NotExpression*>(left)->child.get(),
+      dynamic_cast<NotExpression*>(right)->child.get()
+    );
+  }
+  if (left->getType() == right->getType()
+    && (left->getType() == Type::And || left->getType() == Type::Or)) {
+    auto left_ptr = dynamic_cast<BinaryExpression*>(left);
+    auto right_ptr = dynamic_cast<BinaryExpression*>(right);
+    if (equal_expressions(left_ptr->left.get(), right_ptr->left.get())) {
+      return equal_expressions(left_ptr->right.get(), right_ptr->right.get());
+    }
+    if (equal_expressions(left_ptr->left.get(), right_ptr->right.get())) {
+      return equal_expressions(left_ptr->right.get(), right_ptr->left.get());
+    }
+    return false;
+  }
+  return false;
+}
+

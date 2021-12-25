@@ -16,7 +16,8 @@ namespace codegen {
       False,
       And,
       Or,
-      Not
+      Not,
+      Selection,
     };
 
     /// The bitwise expression type.
@@ -66,6 +67,30 @@ namespace codegen {
     }
   };
 
+  struct SelectionExpression: public BitwiseExpression {
+    /// The left child.
+    std::unique_ptr<BitwiseExpression> if_expr;
+    /// The left child.
+    std::unique_ptr<BitwiseExpression> true_expr;
+    /// The right child.
+    std::unique_ptr<BitwiseExpression> false_expr;
+
+    /// Constructor.
+    SelectionExpression(
+      std::unique_ptr<BitwiseExpression> if_expr,
+      std::unique_ptr<BitwiseExpression> true_expr,
+      std::unique_ptr<BitwiseExpression> false_expr
+    )
+      : BitwiseExpression(Type::Selection)
+      , if_expr(std::move(if_expr))
+      , true_expr(std::move(true_expr))
+      , false_expr(std::move(false_expr)) {}
+
+    std::string as_string() override {
+      return "Selection(" + if_expr->as_string() + " ? " + true_expr->as_string() + " : " + false_expr->as_string() + ")";
+    }
+  };
+
   struct BinaryExpression: public BitwiseExpression {
     /// The left child.
     std::unique_ptr<BitwiseExpression> left;
@@ -76,8 +101,7 @@ namespace codegen {
     BinaryExpression(Type type, std::unique_ptr<BitwiseExpression> left, std::unique_ptr<BitwiseExpression> right)
       : BitwiseExpression(type)
       , left(std::move(left))
-      , right(std::move(right)) {
-    }
+      , right(std::move(right)) {}
 
     std::string as_string() override {
       return "Binary(" + left->as_string() + ", " + right->as_string() + ")";
