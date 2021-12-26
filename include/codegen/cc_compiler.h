@@ -6,6 +6,7 @@
 
 #include "codegen/ast.h"
 #include "stream/cc_bit_stream.h"
+#include "codegen/code.h"
 
 const uint8_t SINGLE_CHAR_BITS = 255;
 
@@ -16,7 +17,7 @@ namespace codegen {
 
     std::unique_ptr<BitwiseExpression> createBitwiseExpression(const stream::CCBitStream& cc);
 
-    void compile(std::unique_ptr<BitwiseExpression> expression);
+    std::unique_ptr<CompiledCode> compile(std::unique_ptr<BitwiseExpression> expression);
 
     private:
     std::unique_ptr<BitwiseExpression> createBitPattern(uint8_t pattern, uint8_t bits);

@@ -20,6 +20,8 @@ int main(int argc, char** argv) {
   for (auto& cc : cc_list) {
     auto expression = compiler.createBitwiseExpression(cc);
     std::cout << std::setw(10) << std::left << cc << " => " << expression->as_string() << std::endl;
+    auto compiled = compiler.compile(std::move(expression));
+    std::cout << compiled->getOutputCC() << std::endl;
   }
   
   return 0;
