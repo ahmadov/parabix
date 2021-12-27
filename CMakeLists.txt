@@ -12,6 +12,7 @@ find_package(Threads REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 include("${CMAKE_SOURCE_DIR}/cmake/clang-tidy.cmake")
+include("${CMAKE_SOURCE_DIR}/vendor/llvm.cmake")
 
 # ---------------------------------------------------------------------------
 # Includes
@@ -19,6 +20,10 @@ include("${CMAKE_SOURCE_DIR}/cmake/clang-tidy.cmake")
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
+)
+
+include_directories(SYSTEM
+    ${LLVM_INCLUDE_DIRS}
 )
 
 # ---------------------------------------------------------------------------
@@ -33,6 +38,7 @@ set(INCLUDE_H
     "${CMAKE_SOURCE_DIR}/include/codegen/cc_compiler.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/ast.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/code.h"
+    "${CMAKE_SOURCE_DIR}/include/codegen/jit.h"
 )
 
 set(SRC_CC
@@ -42,6 +48,7 @@ set(SRC_CC
     "${CMAKE_SOURCE_DIR}/src/parser/re_parser.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/cc_compiler.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/code.cc"
+    "${CMAKE_SOURCE_DIR}/src/codegen/jit.cc"
     "${CMAKE_SOURCE_DIR}/tools/vgrep.cc"
 )
 
@@ -50,7 +57,7 @@ set(SRC_CC
 # ---------------------------------------------------------------------------
 
 add_library(regex_vectorization STATIC ${SRC_CC})
-target_link_libraries(regex_vectorization Threads::Threads)
+target_link_libraries(regex_vectorization Threads::Threads ${LLVM_LIBS} ${LLVM_LDFLAGS})
 
 add_executable(vgrep tools/vgrep.cc)
 target_link_libraries(vgrep regex_vectorization)
