@@ -1,7 +1,8 @@
 #include <iostream>
 #include <iomanip>
-#include "codegen/cc_compiler.h"
 #include "parser/re_parser.h"
+#include "codegen/cc_compiler.h"
+#include "codegen/expression_compiler_cpp.h"
 
 void print_help() {
   std::cerr << "usage: program [regex]" << std::endl;
@@ -14,14 +15,15 @@ int main(int argc, char** argv) {
   }
 
   parser::ReParser parser(argv[1]);
-  codegen::CCCompiler compiler;
+  codegen::CCCompiler cc_compiler;
+  codegen::ExpressionCompilerCpp expr_compiler_cpp;
 
   auto cc_list = parser.getCCs();
   for (auto& cc : cc_list) {
-    auto expression = compiler.createBitwiseExpression(cc);
+    auto expression = cc_compiler.compile(cc);
     std::cout << std::setw(10) << std::left << cc << " => " << expression->as_string() << std::endl;
-    auto compiled = compiler.compile(std::move(expression));
-    std::cout << compiled->getOutputCC() << std::endl;
+
+    std::cout << expr_compiler_cpp.compile(*expression) << std::endl;
   }
   
   return 0;

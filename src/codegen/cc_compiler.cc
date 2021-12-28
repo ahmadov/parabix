@@ -1,7 +1,6 @@
 #include "codegen/cc_compiler.h"
 
 using CCCompiler = codegen::CCCompiler;
-using CompiledCode = codegen::CompiledCode;
 using Bit = codegen::Bit;
 using True = codegen::True;
 using False = codegen::False;
@@ -14,11 +13,7 @@ using NotExpression = codegen::NotExpression;
 using CCBitStream = stream::CCBitStream;
 using Type = BitwiseExpression::Type;
 
-std::unique_ptr<CompiledCode> CCCompiler::compile(std::unique_ptr<BitwiseExpression> expression) {
-  return CompiledCode::compileCCFrom(expression.get());
-}
-
-std::unique_ptr<BitwiseExpression> CCCompiler::createBitwiseExpression(const stream::CCBitStream& cc) {
+std::unique_ptr<BitwiseExpression> CCCompiler::compile(const stream::CCBitStream& cc) {
   auto [low, high] = cc.getRange();
   if (low != high) {
     auto expression = createRange(low, high);
