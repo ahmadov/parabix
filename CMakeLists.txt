@@ -37,6 +37,7 @@ set(INCLUDE_H
     "${CMAKE_SOURCE_DIR}/include/parser/re_parser.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/cc_compiler.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/expression_compiler_cpp.h"
+    "${CMAKE_SOURCE_DIR}/include/codegen/expression_compiler_llvm.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/ast.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/jit.h"
 )
@@ -48,6 +49,7 @@ set(SRC_CC
     "${CMAKE_SOURCE_DIR}/src/parser/re_parser.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/cc_compiler.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/expression_compiler_cpp.cc"
+    "${CMAKE_SOURCE_DIR}/src/codegen/expression_compiler_llvm.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/jit.cc"
     "${CMAKE_SOURCE_DIR}/tools/vgrep.cc"
 )
