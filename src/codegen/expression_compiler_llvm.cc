@@ -1,6 +1,8 @@
+#include "codegen/expression_builder.h"
 #include "codegen/expression_compiler_llvm.h"
 
 using ExpressionCompiler = codegen::ExpressionCompiler;
+using ExpressionBuilder = codegen::ExpressionBuilder;
 using BitwiseExpression = codegen::BitwiseExpression;
 
 void ExpressionCompiler::compile(BitwiseExpression& expression, bool verbose) {
@@ -20,10 +22,11 @@ void ExpressionCompiler::compile(BitwiseExpression& expression, bool verbose) {
       matchFnArgs.push_back(&*ai);
   }
   if(matchFnArgs.size() != 1) {
-      throw("LLVM: match() does not have enough arguments");
+      throw("LLVM: cc_match() does not have enough arguments");
   }
+  ExpressionBuilder expression_builder(builder, matchFnArgs);
 
-  builder.CreateRet(expression.codegen(builder, matchFnArgs[0]));
+  builder.CreateRet(expression_builder.codegen(&expression));
 
   if (verbose) {
     module->print(llvm::errs(), nullptr);

@@ -33,8 +33,6 @@ namespace codegen {
 
     virtual std::string as_string() = 0;
 
-    virtual llvm::Value* codegen(llvm::IRBuilder<>& builder, llvm::Value* arg) = 0;
-
     /// Get the expression type.
     [[nodiscard]] constexpr Type getType() const { return type; }
   };
@@ -46,10 +44,6 @@ namespace codegen {
     std::string as_string() override {
       return "True()";
     }
-
-    llvm::Value* codegen(llvm::IRBuilder<>& builder, llvm::Value* arg) override {
-      return nullptr;
-    }
   };
 
   struct False: public BitwiseExpression {
@@ -58,10 +52,6 @@ namespace codegen {
 
     std::string as_string() override {
       return "False()";
-    }
-
-    llvm::Value* codegen(llvm::IRBuilder<>& builder, llvm::Value* arg) override {
-      return nullptr;
     }
   };
 
@@ -76,13 +66,6 @@ namespace codegen {
 
     std::string as_string() override {
       return "Bit(" + std::to_string((ENCODING_BITS - 1) - bit) + ")";
-    }
-
-    llvm::Value* codegen(llvm::IRBuilder<>& builder, llvm::Value* arg) override {
-      if (bit == 0) {
-        return builder.CreateAnd(arg, 1);
-      }
-      return builder.CreateAnd(builder.CreateLShr(arg, bit), 1);
     }
   };
 
@@ -108,14 +91,6 @@ namespace codegen {
     std::string as_string() override {
       return "Selection(" + if_expr->as_string() + " ? " + true_expr->as_string() + " : " + false_expr->as_string() + ")";
     }
-
-    llvm::Value* codegen(llvm::IRBuilder<>& builder, llvm::Value* arg) override {
-      auto if_expr_value = if_expr->codegen(builder, arg);
-      return builder.CreateOr(
-        builder.CreateAnd(if_expr_value, true_expr->codegen(builder, arg)),
-        builder.CreateAnd(builder.CreateXor(if_expr_value, -1), false_expr->codegen(builder, arg))
-      );
-    }
   };
 
   struct BinaryExpression: public BitwiseExpression {
@@ -133,10 +108,6 @@ namespace codegen {
     std::string as_string() override {
       return "Binary(" + left->as_string() + ", " + right->as_string() + ")";
     }
-
-    llvm::Value* codegen(llvm::IRBuilder<>& builder, llvm::Value* arg) override {
-      return nullptr;
-    }
   };
 
   struct AndExpression: public BinaryExpression {
@@ -147,10 +118,6 @@ namespace codegen {
     std::string as_string() override {
       return "And(" + left->as_string() + ", " + right->as_string() + ")";
     }
-
-    llvm::Value* codegen(llvm::IRBuilder<>& builder, llvm::Value* arg) override {
-      return builder.CreateAnd(left->codegen(builder, arg), right->codegen(builder, arg));
-    }
   };
 
   struct OrExpression: public BinaryExpression {
@@ -160,10 +127,6 @@ namespace codegen {
 
     std::string as_string() override {
       return "Or(" + left->as_string() + ", " + right->as_string() + ")";
-    }
-
-    llvm::Value* codegen(llvm::IRBuilder<>& builder, llvm::Value* arg) override {
-      return builder.CreateOr(left->codegen(builder, arg), right->codegen(builder, arg));
     }
   };
 
@@ -178,10 +141,6 @@ namespace codegen {
 
     std::string as_string() override {
       return "Not(" + child->as_string() + ")";
-    }
-
-    llvm::Value* codegen(llvm::IRBuilder<>& builder, llvm::Value* arg) override {
-      return builder.CreateXor(child->codegen(builder, arg), -1);
     }
   };
 
