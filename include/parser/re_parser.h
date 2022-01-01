@@ -13,13 +13,9 @@ namespace parser {
 // Very simple regex cc parser
 class ReParser {
   public:
-    explicit ReParser(const char* input)
-      : input_(input)
-      , pos_(0) {
-      parse();
-    }
 
-    const std::vector<stream::CCBitStream>& getCCs();
+    const std::vector<stream::CCBitStream>& parse(const char* input);
+
   private:
     void parse();
     bool eof();

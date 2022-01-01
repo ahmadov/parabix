@@ -4,6 +4,13 @@
 using ReParser = parser::ReParser;
 using CCBitStream = stream::CCBitStream;
 
+const std::vector<CCBitStream>& ReParser::parse(const char* input) {
+  input_ = input;
+  pos_ = 0;
+  parse();
+  return cc_list_;
+}
+
 void ReParser::parse() {
   while (!eof()) {
     if (match('[')) { // start a range
@@ -46,8 +53,4 @@ bool ReParser::forward_match(char c) {
 
 bool ReParser::eof() {
   return input_[pos_] == '\0';
-}
-
-const std::vector<CCBitStream>& ReParser::getCCs() {
-  return cc_list_;
 }

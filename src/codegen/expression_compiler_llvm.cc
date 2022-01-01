@@ -5,12 +5,12 @@ using ExpressionCompiler = codegen::ExpressionCompiler;
 using ExpressionBuilder = codegen::ExpressionBuilder;
 using BitwiseExpression = codegen::BitwiseExpression;
 
-void ExpressionCompiler::compile(BitwiseExpression& expression, bool verbose) {
+void ExpressionCompiler::compile(const std::vector<std::unique_ptr<BitwiseExpression>>& expressions, bool verbose) {
   auto& ctx = *context.getContext();
   llvm::IRBuilder<> builder(ctx);
 
-  // define i8 @cc_match(i8 %val) {
-  auto matchT = llvm::FunctionType::get(llvm::Type::getInt8Ty(ctx), {llvm::Type::getInt8Ty(ctx)}, false);
+  // define vec i8 @cc_match(i8 %val) {
+  auto matchT = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {llvm::Type::getInt8Ty(ctx), llvm::PointerType::getInt8PtrTy(ctx)}, false);
   auto matchFN = llvm::cast<llvm::Function>(module->getOrInsertFunction("cc_match", matchT).getCallee());
 
   // entry:
@@ -21,12 +21,19 @@ void ExpressionCompiler::compile(BitwiseExpression& expression, bool verbose) {
   for(llvm::Function::arg_iterator ai = matchFN->arg_begin(), ae = matchFN->arg_end(); ai != ae; ++ai) {
       matchFnArgs.push_back(&*ai);
   }
-  if(matchFnArgs.size() != 1) {
-      throw("LLVM: cc_match() does not have enough arguments");
+  if(matchFnArgs.size() != 2) {
+      throw std::runtime_error{"LLVM: foo() does not have enough arguments"};
   }
-  ExpressionBuilder expression_builder(builder, matchFnArgs);
 
-  builder.CreateRet(expression_builder.codegen(&expression));
+  ExpressionBuilder expression_builder(builder, matchFnArgs);
+  llvm::Value* arr = matchFnArgs[1];
+
+  for (size_t i = 0, end = expressions.size(); i < end; ++i) {
+    auto* expr_value = expression_builder.codegen(expressions[i].get());
+    auto* array_idx = builder.CreateConstInBoundsGEP1_32(builder.getInt8Ty(), arr, i, "arrayidx");
+    builder.CreateStore(expr_value, array_idx);
+  }
+  builder.CreateRetVoid();
 
   if (verbose) {
     module->print(llvm::errs(), nullptr);
@@ -39,6 +46,6 @@ void ExpressionCompiler::compile(BitwiseExpression& expression, bool verbose) {
   fnPtr = reinterpret_cast<decltype(fnPtr)>(jit.getPointerToFunction("cc_match"));
 }
 
-uint8_t ExpressionCompiler::run(uint8_t value) {
-  return fnPtr(value);
+void ExpressionCompiler::run(uint8_t value, uint8_t* result) {
+  return fnPtr(value, result);
 }

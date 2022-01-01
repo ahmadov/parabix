@@ -39,45 +39,25 @@ ValueType ExpressionBuilder::createBit(Bit* expression, ValueType argument) {
 }
 
 ValueType ExpressionBuilder::createAnd(BinaryExpression* expression) {
-  const auto& as_string = expression->as_string();
-  if (cache.count(as_string)) {
-    return cache[as_string];
-  }
   auto* left = codegen(expression->left.get());
   auto* right = codegen(expression->right.get());
-  auto* value = builder.CreateAnd(left, right);
-  return cache[as_string] = value;
+  return builder.CreateAnd(left, right);
 }
 
 ValueType ExpressionBuilder::createOr(BinaryExpression* expression) {
-  const auto& as_string = expression->as_string();
-  if (cache.count(as_string)) {
-    return cache[as_string];
-  }
   auto* left = codegen(expression->left.get());
   auto* right = codegen(expression->right.get());
-  auto* value = builder.CreateOr(left, right);
-  return cache[as_string] = value;
+  return builder.CreateOr(left, right);
 }
 
 ValueType ExpressionBuilder::createSelection(SelectionExpression* expression) {
-  const auto& as_string = expression->as_string();
-  if (cache.count(as_string)) {
-    return cache[as_string];
-  }
   auto* if_expr_value = codegen(expression->if_expr.get());
-  auto* value = builder.CreateOr(
+  return builder.CreateOr(
     builder.CreateAnd(if_expr_value, codegen(expression->true_expr.get())),
     builder.CreateAnd(builder.CreateXor(if_expr_value, -1), codegen(expression->false_expr.get()))
   );
-  return cache[as_string] = value;
 }
 
 ValueType ExpressionBuilder::createNeg(BitwiseExpression* expression) {
-  const auto& as_string = expression->as_string();
-  if (cache.count(as_string)) {
-    return cache[as_string];
-  }
-  auto* value = builder.CreateXor(codegen(expression), -1);
-  return cache[as_string] = value;
+  return builder.CreateXor(codegen(expression), -1);
 }

@@ -18,9 +18,9 @@ namespace codegen {
       , jit(context)
       , fnPtr(nullptr) {}
 
-    void compile(BitwiseExpression& expression, bool verbose = false);
+    void compile(const std::vector<std::unique_ptr<BitwiseExpression>>& expressions, bool verbose = false);
 
-    uint8_t run(uint8_t value);
+    void run(uint8_t, uint8_t*);
 
     private:
     /// The llvm context.
@@ -30,8 +30,7 @@ namespace codegen {
     /// The jit.
     JIT jit;
     /// The compiled function.
-    uint8_t (*fnPtr)(uint8_t value);
-
+    void (*fnPtr)(uint8_t, uint8_t*);
 
   };
 
