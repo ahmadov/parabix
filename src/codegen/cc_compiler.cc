@@ -34,6 +34,8 @@ std::unique_ptr<BitwiseExpression> CCCompiler::createBitPattern(uint8_t pattern,
       } else {
         expressions.emplace_back(createNot(createBit(bit)));
       }
+    } else {
+        expressions.emplace_back(createBoolean(true));
     }
     bits &= ~test_bit;
   }
@@ -61,9 +63,9 @@ std::unique_ptr<BitwiseExpression> CCCompiler::createRange(uint8_t low, uint8_t 
   uint8_t mask = (1 << count) - 1;
   auto common_part = createBitPattern(low & ~mask, SINGLE_CHAR_BITS ^ mask);
   if (count == 0) {
-    // single character?
-    return std::move(common_part);
+    return common_part;
   }
+  mask = (1 << (count - 1)) - 1;
   auto low_part = createGERange(count - 1, low & mask);
   auto high_part = createLERange(count - 1, high & mask);
   return createAnd(std::move(common_part), createSelection( createBit(count - 1), std::move(high_part), std::move(low_part) ));
