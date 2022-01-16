@@ -9,7 +9,7 @@
 #include "codegen/expression_compiler_llvm.h"
 
 void print_help() {
-  std::cerr << "usage: program [regex]" << std::endl;
+  std::cerr << "usage: program [input] [regex]" << std::endl;
 }
 
 std::string join_vec(std::vector<char>& arr) {
@@ -24,7 +24,7 @@ std::string join_vec(std::vector<char>& arr) {
 }
 
 int main(int argc, char** argv) {
-  if (argc != 2) {
+  if (argc != 3) {
     print_help();
     exit(0);
   }
@@ -35,7 +35,8 @@ int main(int argc, char** argv) {
   parser::ReParser parser;
   codegen::CCCompiler cc_compiler;
 
-  auto cc_list = parser.parse(argv[1]);
+  auto input = std::string(argv[1]);
+  auto cc_list = parser.parse(argv[2]);
 
   llvm::orc::ThreadSafeContext context(std::make_unique<llvm::LLVMContext>());
   std::vector<std::unique_ptr<codegen::BitwiseExpression>> expressions;

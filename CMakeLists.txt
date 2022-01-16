@@ -35,6 +35,7 @@ set(INCLUDE_H
     "${CMAKE_SOURCE_DIR}/include/stream/cc_bit_stream.h"
     "${CMAKE_SOURCE_DIR}/include/stream/marker_bit_stream.h"
     "${CMAKE_SOURCE_DIR}/include/parser/re_parser.h"
+    "${CMAKE_SOURCE_DIR}/include/parser/cc.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/cc_compiler.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/expression_compiler_cpp.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/expression_compiler_llvm.h"

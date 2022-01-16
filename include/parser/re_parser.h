@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "stream/cc_bit_stream.h"
+#include "parser/cc.h"
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 namespace parser {
@@ -14,7 +14,7 @@ namespace parser {
 class ReParser {
   public:
 
-    const std::vector<stream::CCBitStream>& parse(const char* input);
+    const std::vector<parser::CC>& parse(const char* input);
 
   private:
     void parse();
@@ -24,7 +24,7 @@ class ReParser {
     bool forward_match(char);
 
     size_t pos_;
-    std::vector<stream::CCBitStream> cc_list_;
+    std::vector<parser::CC> cc_list_;
     std::string_view input_;
 };
 // ---------------------------------------------------------------------------

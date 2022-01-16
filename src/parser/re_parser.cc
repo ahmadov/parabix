@@ -2,9 +2,9 @@
 #include <cassert>
 
 using ReParser = parser::ReParser;
-using CCBitStream = stream::CCBitStream;
+using CC = parser::CC;
 
-const std::vector<CCBitStream>& ReParser::parse(const char* input) {
+const std::vector<CC>& ReParser::parse(const char* input) {
   input_ = input;
   pos_ = 0;
   parse();
@@ -20,18 +20,18 @@ void ReParser::parse() {
       }
       assert(range.size() == 3);
       if (forward_match('*')) {
-        cc_list_.emplace_back(CCBitStream(range[0], range[2], true));
+        cc_list_.emplace_back(CC(range[0], range[2], true));
         forward();
       } else {
-        cc_list_.emplace_back(CCBitStream(range[0], range[2]));
+        cc_list_.emplace_back(CC(range[0], range[2]));
       }
     } else { // single character
       char current = input_[pos_];
       if (forward_match('*')) {
-        cc_list_.emplace_back(CCBitStream(current, true));
+        cc_list_.emplace_back(CC(current, true));
         forward();
       } else {
-        cc_list_.emplace_back(CCBitStream(current));
+        cc_list_.emplace_back(CC(current));
       }
     }
   }

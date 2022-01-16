@@ -10,10 +10,10 @@ using SelectionExpression = codegen::SelectionExpression;
 using AndExpression = codegen::AndExpression;
 using OrExpression = codegen::OrExpression;
 using NotExpression = codegen::NotExpression;
-using CCBitStream = stream::CCBitStream;
+using CC = parser::CC;
 using Type = BitwiseExpression::Type;
 
-std::unique_ptr<BitwiseExpression> CCCompiler::compile(const stream::CCBitStream& cc) {
+std::unique_ptr<BitwiseExpression> CCCompiler::compile(const parser::CC& cc) {
   auto [low, high] = cc.getRange();
   if (low != high) {
     auto expression = createRange(low, high);
