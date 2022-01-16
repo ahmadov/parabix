@@ -2,13 +2,23 @@
 #ifndef INCLUDE_STREAM_MARKER_BIT_STREAM_H_
 #define INCLUDE_STREAM_MARKER_BIT_STREAM_H_
 // ---------------------------------------------------------------------------
-#include <bitset>
+#include "stream/basis_bit_stream.h"
+#include "stream/cc_bit_stream.h"
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 namespace stream {
 // ---------------------------------------------------------------------------
-// Character Class Bit Stream
-class MarkerBitStream {};
+// Marker Bit Stream
+class MarkerBitStream: public BasisBitStream {
+  public:
+    explicit MarkerBitStream(size_t length)
+      : BasisBitStream(length) {} 
+
+    MarkerBitStream& operator=(const CCBitStream& other) {
+      parts = other.getParts();
+      return *this;
+    }
+};
 // ---------------------------------------------------------------------------
 } // namespace stream
 // ---------------------------------------------------------------------------

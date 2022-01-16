@@ -42,6 +42,7 @@ set(INCLUDE_H
     "${CMAKE_SOURCE_DIR}/include/codegen/expression_builder.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/ast.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/jit.h"
+    "${CMAKE_SOURCE_DIR}/include/operations/marker.h"
 )
 
 set(SRC_CC
