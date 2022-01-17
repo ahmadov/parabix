@@ -59,6 +59,8 @@ class BasisBitStream {
 
     BasisBitStream operator>>(const size_t offset) const;
 
+    BasisBitStream operator~() const;
+
     BasisBitStream& operator+=(const BasisBitStream& other);
 
     BasisBitStream& operator&=(const BasisBitStream& other);

@@ -28,6 +28,14 @@ BasisBitStream BasisBitStream::operator>>(const size_t offset) const {
   return result >>= offset;
 }
 
+BasisBitStream BasisBitStream::operator~() const {
+  BasisBitStream result(*this);
+  for (auto i = 0; i < parts.size(); ++i) {
+    result.parts[i] = ~parts[i];
+  }
+  return result;
+}
+
 BasisBitStream& BasisBitStream::operator&=(const BasisBitStream& other) {
   assert(parts.size() == other.parts.size() && "sizes must be same");
 
