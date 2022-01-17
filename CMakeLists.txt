@@ -31,7 +31,7 @@ include_directories(SYSTEM
 # ---------------------------------------------------------------------------
 
 set(INCLUDE_H
-    "${CMAKE_SOURCE_DIR}/include/stream/basis_bit_stream.h"
+    "${CMAKE_SOURCE_DIR}/include/stream/bit_stream.h"
     "${CMAKE_SOURCE_DIR}/include/parser/re_parser.h"
     "${CMAKE_SOURCE_DIR}/include/parser/cc.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/cc_compiler.h"
@@ -44,7 +44,7 @@ set(INCLUDE_H
 )
 
 set(SRC_CC
-    "${CMAKE_SOURCE_DIR}/src/stream/basis_bit_stream.cc"
+    "${CMAKE_SOURCE_DIR}/src/stream/bit_stream.cc"
     "${CMAKE_SOURCE_DIR}/src/parser/re_parser.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/cc_compiler.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/expression_compiler_cpp.cc"

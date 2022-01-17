@@ -1,20 +1,20 @@
-#include "stream/basis_bit_stream.h"
+#include "stream/bit_stream.h"
 
-using BasisBitStream = stream::BasisBitStream;
+using BitStream = stream::BitStream;
 
 namespace operation {
 
   namespace marker {
 
-    inline BasisBitStream advance(const BasisBitStream& marker, const BasisBitStream& cc) {
-      BasisBitStream result = marker;
+    inline BitStream advance(const BitStream& marker, const BitStream& cc) {
+      BitStream result = marker;
       result &= cc;
       result >>= 1;
       return result;
     }
 
-    inline BasisBitStream match_star(const BasisBitStream& marker, const BasisBitStream& cc) {
-      BasisBitStream result = marker;
+    inline BitStream match_star(const BitStream& marker, const BitStream& cc) {
+      BitStream result = marker;
       result &= cc;
       result += cc;
       result ^= cc;
@@ -22,8 +22,8 @@ namespace operation {
       return result;
     }
 
-    inline BasisBitStream scan_thru(const BasisBitStream& marker, const BasisBitStream& cc) {
-      BasisBitStream result = marker;
+    inline BitStream scan_thru(const BitStream& marker, const BitStream& cc) {
+      BitStream result = marker;
       result += cc;
       result &= ~cc;
       return result;
