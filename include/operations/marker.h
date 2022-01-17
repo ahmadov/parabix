@@ -24,6 +24,14 @@ namespace operation {
       return result;
     }
 
+    inline MarkerBitStream scan_thru(const MarkerBitStream& marker, const CCBitStream& cc) {
+      MarkerBitStream result = marker;
+      result += cc;
+      result &= ~cc;
+      return result;
+    }
+
+
   } // namespace marker
 
 } // namespace operation
