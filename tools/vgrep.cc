@@ -7,8 +7,7 @@
 #include "codegen/ast.h"
 #include "codegen/expression_compiler_cpp.h"
 #include "codegen/expression_compiler_llvm.h"
-#include "stream/cc_bit_stream.h"
-#include "stream/marker_bit_stream.h"
+#include "stream/basis_bit_stream.h"
 #include "operations/marker.h"
 
 void print_help() {
@@ -52,7 +51,7 @@ int main(int argc, char** argv) {
   expr_compiler.compile(expressions, false);
 
   // CC bit streams
-  std::vector<stream::CCBitStream> cc_bit_streams(cc_size, stream::CCBitStream(input_size));
+  std::vector<stream::BasisBitStream> cc_bit_streams(cc_size, stream::BasisBitStream(input_size));
   for (size_t i = 0; i < input_size; ++i) {
     std::vector<uint8_t> match_result(cc_size);
     expr_compiler.run(input[i], reinterpret_cast<uint8_t*>(match_result.data()));
@@ -72,7 +71,7 @@ int main(int argc, char** argv) {
   
   // Marker bit streams
   auto markers_size = cc_size + 1;
-  std::vector<stream::MarkerBitStream> markers(markers_size, stream::MarkerBitStream(input_size));
+  std::vector<stream::BasisBitStream> markers(markers_size, stream::BasisBitStream(input_size));
   markers[0] = cc_bit_streams[0];
   for (size_t i = 1; i < markers_size; ++i) {
     std::cout << std::setw(cc_width) << std::left << "markers " + std::to_string(i);
