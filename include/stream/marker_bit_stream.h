@@ -15,7 +15,7 @@ class MarkerBitStream: public BasisBitStream {
       : BasisBitStream(length) {} 
 
     MarkerBitStream& operator=(const CCBitStream& other) {
-      parts = other.getParts();
+      blocks = other.getBlocks();
       return *this;
     }
 };

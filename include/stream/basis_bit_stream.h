@@ -11,9 +11,14 @@ namespace stream {
 // ---------------------------------------------------------------------------
 // Basis Bit Stream
 class BasisBitStream {
+
+  using block_type = uint64_t;
+  const static size_t bits = sizeof(block_type) * 8;
+  const static size_t bits_per_block = bits - 1; // number of bits that each block stores
+
   public:
     explicit BasisBitStream(size_t length) {
-      parts.resize((length + 63) / 64, 0);
+      blocks.resize((length + bits - 1) / bits, 0);
     }
 
     BasisBitStream() = default;
@@ -24,27 +29,27 @@ class BasisBitStream {
     [[nodiscard]] bool is_set(size_t pos);
 
     [[nodiscard]] size_t size() {
-      return parts.size() * BITS;
+      return blocks.size() * bits_per_block;
     }
 
     [[nodiscard]] size_t size() const {
-      return parts.size() * BITS;
+      return blocks.size() * bits_per_block;
     }
 
-    std::vector<uint64_t> getParts() const {
-      return parts;
+    std::vector<block_type> getBlocks() const {
+      return blocks;
     }
 
     BasisBitStream& operator=(const BasisBitStream& other) {
       if (this != &other) {
-        parts = other.parts;
+        blocks = other.blocks;
       }
       return *this;
     }
 
     BasisBitStream& operator=(BasisBitStream&& other) noexcept {
       if (this != &other) {
-        parts = std::move(other.parts);
+        blocks = std::move(other.blocks);
       }
       return *this;
     }
@@ -74,9 +79,9 @@ class BasisBitStream {
     friend std::ostream& operator<<(std::ostream& os, const BasisBitStream& marker) {
       std::stringstream out;
       
-      for (const auto& part : marker.parts) {
-        for (auto i = 0; i < marker.BITS; ++i) {
-          auto is_set = (part >> i) & 1;
+      for (const auto& block : marker.blocks) {
+        for (auto i = 0; i < marker.bits_per_block; ++i) {
+          auto is_set = (block >> i) & 1;
           out << (is_set ? "1" : ".");
         }
       }
@@ -85,15 +90,13 @@ class BasisBitStream {
     }
 
   protected:
-    const size_t BITS = 63; // number of bits that each part stores
-
     void set(size_t pos);
 
     void clear(size_t pos);
 
-    std::pair<size_t, size_t> find_part(size_t pos);
+    std::pair<size_t, size_t> find_block(size_t pos);
 
-    std::vector<uint64_t> parts;
+    std::vector<block_type> blocks;
 };
 // ---------------------------------------------------------------------------
 } // namespace stream
