@@ -17,6 +17,8 @@ namespace codegen {
     std::unique_ptr<BitwiseExpression> compile(const parser::CC& cc);
 
     private:
+    std::unique_ptr<BitwiseExpression> createSingleOrRange(std::pair<char, char>& range);
+
     std::unique_ptr<BitwiseExpression> createBitPattern(uint8_t pattern, uint8_t bits);
 
     std::unique_ptr<BitwiseExpression> createRange(uint8_t low, uint8_t high);

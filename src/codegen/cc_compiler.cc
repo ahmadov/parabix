@@ -14,7 +14,16 @@ using CC = parser::CC;
 using Type = BitwiseExpression::Type;
 
 std::unique_ptr<BitwiseExpression> CCCompiler::compile(const parser::CC& cc) {
-  auto [low, high] = cc.getRange();
+  auto ranges = cc.getRanges();
+  auto expression = createSingleOrRange(ranges[0]);
+  for (auto i = 1; i < ranges.size(); ++i) {
+    expression = createOr(std::move(expression), createSingleOrRange(ranges[i]));
+  }
+  return expression;
+}
+
+std::unique_ptr<BitwiseExpression> CCCompiler::createSingleOrRange(std::pair<char, char>& range) {
+  auto& [low, high] = range;
   if (low != high) {
     auto expression = createRange(low, high);
     return std::move(expression);

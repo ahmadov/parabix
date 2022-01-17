@@ -22,6 +22,7 @@ class ReParser {
     void forward();
     bool match(char);
     bool forward_match(char);
+    std::vector<std::pair<char, char>> parseRanges(); 
 
     size_t pos_;
     std::vector<parser::CC> cc_list_;

@@ -73,12 +73,12 @@ int main(int argc, char** argv) {
   auto markers_size = cc_size + 1;
   std::vector<stream::BitStream> markers(markers_size, stream::BitStream(input_size));
   markers[0] = cc_bit_streams[0];
-  for (size_t i = 1; i < markers_size; ++i) {
-    std::cout << std::setw(cc_width) << std::left << "markers " + std::to_string(i);
-    if (cc_list[i - 1].isStar()) {
-      markers[i] = operation::marker::match_star(markers[i - 1], cc_bit_streams[i - 1]);
+  for (size_t i = 0; i < markers_size - 1; ++i) {
+    std::cout << std::setw(cc_width) << std::left << "markers " + std::to_string(i + 1);
+    if (cc_list[i].isStar()) {
+      markers[i + 1] = operation::marker::match_star(markers[i], cc_bit_streams[i]);
     } else {
-      markers[i] = operation::marker::advance(markers[i - 1], cc_bit_streams[i - 1]);
+      markers[i + 1] = operation::marker::advance(markers[i], cc_bit_streams[i]);
     }
     std::cout << markers[i] << std::endl;
   }

@@ -2,6 +2,7 @@
 #ifndef INCLUDE_PARSER_CC_H_
 #define INCLUDE_PARSER_CC_H_
 // ---------------------------------------------------------------------------
+#include <vector>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -14,39 +15,36 @@ namespace parser {
 class CC {
   public:
 
-  explicit CC(char low, char high, bool star = false)
-    : star_(star)
-    , low_(low)
-    , high_(high) {}
+    explicit CC(std::vector<std::pair<char, char>> ranges, bool star = false)
+      : ranges(std::move(ranges))
+      , star_(star) {}
 
-  explicit CC(char character, bool star = false)
-    : star_(star)
-    , low_(character)
-    , high_(character) {}
+    [[nodiscard]] std::vector<std::pair<char, char>> getRanges() const { return ranges; }
 
-  [[nodiscard]] constexpr std::pair<char, char> getRange() const { return {low_, high_}; }
+    // [[nodiscard]] constexpr bool isScanThru() const { return ranges.size() > 1; }
 
-  [[nodiscard]] constexpr bool isStar() const { return star_; }
+    [[nodiscard]] constexpr bool isStar() const { return star_; }
 
-  friend std::ostream& operator<<(std::ostream& os, const CC& cc) {
-    std::stringstream out;
-    out << "CC([";
-    out << cc.low_;
-    if (cc.low_ != cc.high_) {
-      out << "-" << cc.high_;
+    friend std::ostream& operator<<(std::ostream& os, const CC& cc) {
+      std::stringstream out;
+      out << "CC([";
+      for (auto& [low, high] : cc.ranges) {
+        out << low;
+        if (low != high) {
+          out << "-" << high;
+        }
+      }
+      out << "]";
+      if (cc.star_) {
+        out << "*";
+      }
+      out << ")";
+      return os << out.str();
     }
-    out << "]";
-    if (cc.star_) {
-      out << "*";
-    }
-    out << ")";
-    return os << out.str();
-  }
 
   private:
+    std::vector<std::pair<char, char>> ranges;
     bool star_;
-    char low_;
-    char high_;
 };
 // ---------------------------------------------------------------------------
 } // namespace parser
