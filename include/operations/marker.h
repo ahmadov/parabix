@@ -6,14 +6,14 @@ namespace operation {
 
   namespace marker {
 
-    inline BitStream advance(const BitStream& marker, const BitStream& cc) {
+    inline BitStream advance(const BitStream& marker, BitStream& cc) {
       BitStream result = marker;
       result &= cc;
       result >>= 1;
       return result;
     }
 
-    inline BitStream match_star(const BitStream& marker, const BitStream& cc) {
+    inline BitStream match_star(const BitStream& marker, BitStream& cc) {
       BitStream result = marker;
       result &= cc;
       result += cc;
@@ -22,7 +22,7 @@ namespace operation {
       return result;
     }
 
-    inline BitStream scan_thru(const BitStream& marker, const BitStream& cc) {
+    inline BitStream scan_thru(const BitStream& marker, BitStream& cc) {
       BitStream result = marker;
       result += cc;
       result &= ~cc;
