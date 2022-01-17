@@ -36,10 +36,6 @@ class BitStream {
       return blocks.size() * bits_per_block;
     }
 
-    std::vector<block_type> getBlocks() const {
-      return blocks;
-    }
-
     BitStream& operator=(const BitStream& other) {
       if (this != &other) {
         blocks = other.blocks;
