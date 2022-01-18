@@ -14,6 +14,10 @@ void print_help() {
   std::cerr << "usage: program [input] [regex]" << std::endl;
 }
 
+void print_red(std::string_view output) {
+  std::cout << "\e[31m" << output.data() << "\e[39m";
+}
+
 int main(int argc, char** argv) {
   if (argc != 3) {
     print_help();
@@ -60,7 +64,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  auto cc_width = 12;
+  auto cc_width = 15;
   int width = static_cast<int>(input_size + cc_width);
   std::cout << std::setw(width) << std::right << input << std::endl;
   for (size_t i = 0; i < cc_size; ++i) {
@@ -74,17 +78,36 @@ int main(int argc, char** argv) {
   std::vector<stream::BitStream> markers(markers_size, stream::BitStream(input_size));
   markers[0] = cc_bit_streams[0];
   for (size_t i = 0; i < markers_size - 1; ++i) {
-    std::cout << std::setw(cc_width) << std::left << "markers " + std::to_string(i + 1);
     if (cc_list[i].isStar()) {
       markers[i + 1] = operation::marker::match_star(markers[i], cc_bit_streams[i]);
     } else {
       markers[i + 1] = operation::marker::advance(markers[i], cc_bit_streams[i]);
     }
+  }
+
+  for (size_t i = 0; i < markers_size; ++i) {
+    std::cout << std::setw(cc_width) << std::left << "markers " + std::to_string(i);
     std::cout << markers[i] << std::endl;
   }
 
+  std::cout << std::endl;
+  std::cout << input << std::endl;
+  size_t start = -1;
+  std::string current = "";
+  for (size_t i = 0; i < input_size - 1; ++i) {
+    if (markers[0].is_set(i)) {
+      std::cout << current;
+      current = input[i];
+      start = i;
+    } else {
+      current += input[i];
+    }
+    if (markers.back().is_set(i + 1)) {
+      print_red(current);
+      current = "";
     }
   }
+  std::cout << current << input[input_size - 1] << std::endl;
   
   return 0;
 }
