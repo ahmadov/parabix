@@ -5,7 +5,7 @@ project(vectorized_regex LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address -mavx2")
 
 find_package(Threads REQUIRED)
 
@@ -41,6 +41,7 @@ set(INCLUDE_H
     "${CMAKE_SOURCE_DIR}/include/codegen/ast.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/jit.h"
     "${CMAKE_SOURCE_DIR}/include/operations/marker.h"
+    "${CMAKE_SOURCE_DIR}/include/operations/simd.h"
 )
 
 set(SRC_CC
