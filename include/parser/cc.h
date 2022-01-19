@@ -25,6 +25,15 @@ class CC {
 
     [[nodiscard]] constexpr bool isStar() const { return star_; }
 
+    [[nodiscard]] bool match(char c) {
+      for (auto& range : ranges) {
+        if (c >= range.first && c <= range.second) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     friend std::ostream& operator<<(std::ostream& os, const CC& cc) {
       std::stringstream out;
       out << "CC([";
