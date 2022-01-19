@@ -69,8 +69,9 @@ BitStream& BitStream::operator^=(const BitStream& other) {
 BitStream& BitStream::operator>>=(const size_t offset) {
   bool carry = false;
   for (auto& block : blocks) {
-    bool next_carry = (block >> bits_per_block) & 1;
+    bool next_carry = (block >> (bits_per_block - 1)) & 1;
     block <<= offset;
+    block &= ~(1ULL << bits_per_block);
     block |= carry;
     carry = next_carry;
   }
