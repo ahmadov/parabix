@@ -67,8 +67,12 @@ BitStream& BitStream::operator^=(const BitStream& other) {
 }
 
 BitStream& BitStream::operator>>=(const size_t offset) {
-  for (auto& part : blocks) {
-    part <<= offset;
+  bool carry = false;
+  for (auto& block : blocks) {
+    bool next_carry = (block >> bits_per_block) & 1;
+    block <<= offset;
+    block |= carry;
+    carry = next_carry;
   }
   return *this;
 }
@@ -76,7 +80,7 @@ BitStream& BitStream::operator>>=(const size_t offset) {
 BitStream& BitStream::operator+=(const BitStream& other) {
   assert(blocks.size() == other.blocks.size() && "sizes must be same");
 
-  uint8_t carry = 0;
+  bool carry = 0;
   for (auto i = 0; i < other.blocks.size(); ++i) {
     blocks[i] += other.blocks[i] + carry;
     carry = (blocks[i] >> bits_per_block) & 1;

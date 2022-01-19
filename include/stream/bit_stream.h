@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <ostream>
+#include <immintrin.h>
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 namespace stream {
@@ -18,7 +19,7 @@ class BitStream {
 
   public:
     explicit BitStream(size_t length) {
-      blocks.resize((length + bits - 1) / bits, 0);
+      blocks.resize((length + bits_per_block - 1) / bits_per_block, 0);
     }
 
     BitStream() = default;
@@ -29,11 +30,23 @@ class BitStream {
     [[nodiscard]] bool is_set(size_t pos);
 
     [[nodiscard]] size_t size() {
-      return blocks.size() * bits_per_block;
+      return blocks.size() * bits;
+    }
+
+    [[nodiscard]] size_t block_size() {
+      return blocks.size();
     }
 
     [[nodiscard]] size_t size() const {
-      return blocks.size() * bits_per_block;
+      return blocks.size() * bits;
+    }
+
+    [[nodiscard]] size_t pop_count() {
+      size_t result = 0;
+      for (auto& block : blocks) {
+        result += _mm_popcnt_u64(block);
+      }
+      return result;
     }
 
     BitStream& operator=(const BitStream& other) {
@@ -80,6 +93,7 @@ class BitStream {
           auto is_set = (block >> i) & 1;
           out << (is_set ? "1" : ".");
         }
+        out << " ";
       }
 
       return os << out.str();

@@ -55,6 +55,10 @@ set(SRC_CC
     "${CMAKE_SOURCE_DIR}/tools/vgrep.cc"
 )
 
+set(TEST_CC
+    "${CMAKE_SOURCE_DIR}/test/bit_stream.cc"
+)
+
 # ---------------------------------------------------------------------------
 # Targets
 # ---------------------------------------------------------------------------
@@ -64,6 +68,15 @@ target_link_libraries(regex_vectorization Threads::Threads ${LLVM_LIBS} ${LLVM_L
 
 add_executable(vgrep tools/vgrep.cc)
 target_link_libraries(vgrep regex_vectorization)
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+
+add_executable(tester test/tester.cc ${TEST_CC})
+target_link_libraries(tester regex_vectorization gtest Threads::Threads)
+enable_testing()
+add_test(regex_vectorization tester)
 
 # ---------------------------------------------------------------------------
 # Linting
