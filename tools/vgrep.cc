@@ -1,7 +1,9 @@
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <vector>
 #include <numeric>
+#include <chrono> // NOLINT
 #include "parser/re_parser.h"
 #include "codegen/cc_compiler.h"
 #include "codegen/ast.h"
@@ -10,8 +12,8 @@
 #include "stream/bit_stream.h"
 #include "operations/marker.h"
 
-void print_help() {
-  std::cerr << "usage: program [input] [regex]" << std::endl;
+void print_help(const char* name) {
+  std::cerr << "usage: " << name << " [/path/to/file] [regex]" << std::endl;
 }
 
 void print_red(std::string_view output) {
@@ -20,21 +22,33 @@ void print_red(std::string_view output) {
 
 int main(int argc, char** argv) {
   if (argc != 3) {
-    print_help();
+    print_help(argv[0]);
     exit(0);
   }
-  LLVMInitializeNativeTarget();
-  LLVMInitializeNativeAsmPrinter();
-  llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr);
+
+  std::ifstream t(argv[1]);
+  std::stringstream buffer;
+  buffer << t.rdbuf();
+
+  auto input = buffer.str();
+
+  auto pattern = argv[2];
+
+  std::cout << "input size: " << input.size() << std::endl;
+
+  auto tick = std::chrono::high_resolution_clock::now();
 
   parser::ReParser parser;
   codegen::CCCompiler cc_compiler;
 
-  auto input = std::string(argv[1]);
-  auto cc_list = parser.parse(argv[2]);
+  auto cc_list = parser.parse(pattern);
   auto input_size = input.length();
   auto cc_size = cc_list.size();
 
+#if LLVM
+  LLVMInitializeNativeTarget();
+  LLVMInitializeNativeAsmPrinter();
+  llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr);
   llvm::orc::ThreadSafeContext context(std::make_unique<llvm::LLVMContext>());
   std::vector<std::unique_ptr<codegen::BitwiseExpression>> expressions;
   for (auto& cc : cc_list) {
@@ -63,6 +77,15 @@ int main(int argc, char** argv) {
       cc_bit_streams[j].set(i, match_result[j]);
     }
   }
+#else
+  std::vector<stream::BitStream> cc_bit_streams(cc_size, stream::BitStream(input_size));
+  for (size_t i = 0; i < input_size; ++i) {
+    for (size_t j = 0; j < cc_size; ++j) {
+      cc_bit_streams[j].set(i, cc_list[j].match(input[i]));
+    }
+  }
+
+#endif
 
   auto cc_width = 15;
   int width = static_cast<int>(input_size + cc_width);
@@ -85,29 +108,12 @@ int main(int argc, char** argv) {
     }
   }
 
-  for (size_t i = 0; i < markers_size; ++i) {
-    std::cout << std::setw(cc_width) << std::left << "markers " + std::to_string(i);
-    std::cout << markers[i] << std::endl;
-  }
+  
+  std::cout << "matched = " << markers.back().pop_count() << std::endl;
 
-  std::cout << std::endl;
-  std::cout << input << std::endl;
-  size_t start = -1;
-  std::string current = "";
-  for (size_t i = 0; i < input_size - 1; ++i) {
-    if (markers[0].is_set(i)) {
-      std::cout << current;
-      current = input[i];
-      start = i;
-    } else {
-      current += input[i];
-    }
-    if (markers.back().is_set(i + 1)) {
-      print_red(current);
-      current = "";
-    }
-  }
-  std::cout << current << input[input_size - 1] << std::endl;
+  auto tock = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed_time = tock - tick;
+  std::cout << "elapsed time = " << elapsed_time.count() << " second" << std::endl;
   
   return 0;
 }
