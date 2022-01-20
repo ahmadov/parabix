@@ -5,7 +5,8 @@ project(vectorized_regex LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address -mavx2")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O2 -mavx2")
 
 find_package(Threads REQUIRED)
 
@@ -31,22 +32,21 @@ include_directories(SYSTEM
 # ---------------------------------------------------------------------------
 
 set(INCLUDE_H
-    "${CMAKE_SOURCE_DIR}/include/stream/basis_bit_stream.h"
-    "${CMAKE_SOURCE_DIR}/include/stream/cc_bit_stream.h"
-    "${CMAKE_SOURCE_DIR}/include/stream/marker_bit_stream.h"
+    "${CMAKE_SOURCE_DIR}/include/stream/bit_stream.h"
     "${CMAKE_SOURCE_DIR}/include/parser/re_parser.h"
+    "${CMAKE_SOURCE_DIR}/include/parser/cc.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/cc_compiler.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/expression_compiler_cpp.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/expression_compiler_llvm.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/expression_builder.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/ast.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/jit.h"
+    "${CMAKE_SOURCE_DIR}/include/operations/marker.h"
+    "${CMAKE_SOURCE_DIR}/include/operations/simd.h"
 )
 
 set(SRC_CC
-    "${CMAKE_SOURCE_DIR}/src/stream/basis_bit_stream.cc"
-    "${CMAKE_SOURCE_DIR}/src/stream/cc_bit_stream.cc"
-    "${CMAKE_SOURCE_DIR}/src/stream/marker_bit_stream.cc"
+    "${CMAKE_SOURCE_DIR}/src/stream/bit_stream.cc"
     "${CMAKE_SOURCE_DIR}/src/parser/re_parser.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/cc_compiler.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/expression_compiler_cpp.cc"
@@ -54,6 +54,10 @@ set(SRC_CC
     "${CMAKE_SOURCE_DIR}/src/codegen/expression_builder.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/jit.cc"
     "${CMAKE_SOURCE_DIR}/tools/vgrep.cc"
+)
+
+set(TEST_CC
+    "${CMAKE_SOURCE_DIR}/test/bit_stream.cc"
 )
 
 # ---------------------------------------------------------------------------
@@ -65,6 +69,15 @@ target_link_libraries(regex_vectorization Threads::Threads ${LLVM_LIBS} ${LLVM_L
 
 add_executable(vgrep tools/vgrep.cc)
 target_link_libraries(vgrep regex_vectorization)
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+
+add_executable(tester test/tester.cc ${TEST_CC})
+target_link_libraries(tester regex_vectorization gtest Threads::Threads)
+enable_testing()
+add_test(regex_vectorization tester)
 
 # ---------------------------------------------------------------------------
 # Linting

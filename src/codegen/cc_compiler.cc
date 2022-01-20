@@ -10,11 +10,20 @@ using SelectionExpression = codegen::SelectionExpression;
 using AndExpression = codegen::AndExpression;
 using OrExpression = codegen::OrExpression;
 using NotExpression = codegen::NotExpression;
-using CCBitStream = stream::CCBitStream;
+using CC = parser::CC;
 using Type = BitwiseExpression::Type;
 
-std::unique_ptr<BitwiseExpression> CCCompiler::compile(const stream::CCBitStream& cc) {
-  auto [low, high] = cc.getRange();
+std::unique_ptr<BitwiseExpression> CCCompiler::compile(const parser::CC& cc) {
+  auto ranges = cc.getRanges();
+  auto expression = createSingleOrRange(ranges[0]);
+  for (auto i = 1; i < ranges.size(); ++i) {
+    expression = createOr(std::move(expression), createSingleOrRange(ranges[i]));
+  }
+  return expression;
+}
+
+std::unique_ptr<BitwiseExpression> CCCompiler::createSingleOrRange(std::pair<char, char>& range) {
+  auto& [low, high] = range;
   if (low != high) {
     auto expression = createRange(low, high);
     return std::move(expression);
@@ -34,6 +43,8 @@ std::unique_ptr<BitwiseExpression> CCCompiler::createBitPattern(uint8_t pattern,
       } else {
         expressions.emplace_back(createNot(createBit(bit)));
       }
+    } else {
+        expressions.emplace_back(createBoolean(true));
     }
     bits &= ~test_bit;
   }
@@ -61,9 +72,9 @@ std::unique_ptr<BitwiseExpression> CCCompiler::createRange(uint8_t low, uint8_t 
   uint8_t mask = (1 << count) - 1;
   auto common_part = createBitPattern(low & ~mask, SINGLE_CHAR_BITS ^ mask);
   if (count == 0) {
-    // single character?
-    return std::move(common_part);
+    return common_part;
   }
+  mask = (1 << (count - 1)) - 1;
   auto low_part = createGERange(count - 1, low & mask);
   auto high_part = createLERange(count - 1, high & mask);
   return createAnd(std::move(common_part), createSelection( createBit(count - 1), std::move(high_part), std::move(low_part) ));

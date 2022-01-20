@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "codegen/ast.h"
-#include "stream/cc_bit_stream.h"
+#include "parser/cc.h"
 
 const uint8_t SINGLE_CHAR_BITS = 255;
 
@@ -14,9 +14,11 @@ namespace codegen {
   class CCCompiler {
     public:
 
-    std::unique_ptr<BitwiseExpression> compile(const stream::CCBitStream& cc);
+    std::unique_ptr<BitwiseExpression> compile(const parser::CC& cc);
 
     private:
+    std::unique_ptr<BitwiseExpression> createSingleOrRange(std::pair<char, char>& range);
+
     std::unique_ptr<BitwiseExpression> createBitPattern(uint8_t pattern, uint8_t bits);
 
     std::unique_ptr<BitwiseExpression> createRange(uint8_t low, uint8_t high);
