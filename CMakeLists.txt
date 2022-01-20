@@ -21,6 +21,7 @@ include("${CMAKE_SOURCE_DIR}/vendor/llvm.cmake")
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/perfevent
 )
 
 include_directories(SYSTEM

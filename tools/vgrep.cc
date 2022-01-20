@@ -4,6 +4,7 @@
 #include <vector>
 #include <numeric>
 #include <chrono> // NOLINT
+#include "PerfEvent.hpp"
 #include "parser/re_parser.h"
 #include "codegen/cc_compiler.h"
 #include "codegen/ast.h"
@@ -44,6 +45,9 @@ int main(int argc, char** argv) {
   auto cc_list = parser.parse(pattern);
   auto input_size = input.length();
   auto cc_size = cc_list.size();
+
+  PerfEvent e;
+  e.startCounters();
 
 #if LLVM
   LLVMInitializeNativeTarget();
@@ -87,14 +91,6 @@ int main(int argc, char** argv) {
 
 #endif
 
-  auto cc_width = 15;
-  int width = static_cast<int>(input_size + cc_width);
-  std::cout << std::setw(width) << std::right << input << std::endl;
-  for (size_t i = 0; i < cc_size; ++i) {
-    auto& cc = cc_list[i];
-    std::cout << std::setw(cc_width) << std::left << cc;
-    std::cout << cc_bit_streams[i] << std::endl;
-  }
   
   // Marker bit streams
   auto markers_size = cc_size + 1;
@@ -108,6 +104,8 @@ int main(int argc, char** argv) {
     }
   }
 
+  e.stopCounters();
+  e.printReport(std::cout, input_size); // use n as scale factor
   
   std::cout << "matched = " << markers.back().pop_count() << std::endl;
 

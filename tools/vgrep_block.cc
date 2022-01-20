@@ -6,6 +6,7 @@
 #include <numeric>
 #include <chrono> // NOLINT
 #include <immintrin.h>
+#include "PerfEvent.hpp"
 #include "parser/re_parser.h"
 
 void print_help(const char* name) {
@@ -56,6 +57,9 @@ int main(int argc, char** argv) {
 #if PRINT
   std::cout << "   " << input << std::endl;
 #endif
+
+  PerfEvent e;
+  e.startCounters();
 
   for (size_t i = 0, block = 0; i < input_size; i += block_size, ++block) {
 #if PRINT
@@ -108,6 +112,9 @@ int main(int argc, char** argv) {
 
     matched += _mm_popcnt_u64(marker.back());
   }
+
+  e.stopCounters();
+  e.printReport(std::cout, input_size); // use n as scale factor
 
   std::cout << "matched = " << matched << std::endl;
 
