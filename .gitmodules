@@ -1,0 +1,3 @@
+[submodule "perfevent"]
+	path = perfevent
+	url = git@github.com:viktorleis/perfevent.git
