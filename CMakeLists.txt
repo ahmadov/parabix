@@ -70,6 +70,9 @@ target_link_libraries(regex_vectorization Threads::Threads ${LLVM_LIBS} ${LLVM_L
 add_executable(vgrep tools/vgrep.cc)
 target_link_libraries(vgrep regex_vectorization)
 
+add_executable(vgrep_block tools/vgrep_block.cc)
+target_link_libraries(vgrep_block regex_vectorization)
+
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
