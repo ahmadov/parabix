@@ -8,6 +8,9 @@
 #include <immintrin.h>
 #include "PerfEvent.hpp"
 #include "parser/re_parser.h"
+#include "codegen/cc_compiler.h"
+#include "codegen/ast.h"
+#include "codegen/expression_compiler_cpp.h"
 
 void print_help(const char* name) {
   std::cerr << "usage: " << name << " [/path/to/file] [regex]" << std::endl;
@@ -45,6 +48,7 @@ int main(int argc, char** argv) {
   auto tick = std::chrono::high_resolution_clock::now();
 
   parser::ReParser parser;
+  codegen::CCCompiler cc_compiler;
 
   auto cc_list = parser.parse(pattern);
   auto input_size = input.length();
@@ -55,26 +59,41 @@ int main(int argc, char** argv) {
   std::vector<bool> carry(cc_size, false);
 
 #if PRINT
-  std::cout << "   " << input << std::endl;
+  std::cout << "    " << input << std::endl;
 #endif
 
   PerfEvent e;
   e.startCounters();
 
+  std::vector<std::unique_ptr<codegen::BitwiseExpression>> expressions(cc_size);
+  for (auto i = 0; i < cc_size; ++i) {
+    expressions[i] = cc_compiler.compile(cc_list[i]);
+  }
+
+  codegen::ExpressionCompilerCpp expr_compiler_cpp;
   for (size_t i = 0, block = 0; i < input_size; i += block_size, ++block) {
 #if PRINT
     std::cout << "processing block " << block << std::endl;
 #endif
     auto to = std::min(block_size, input_size - i);
-    std::vector<uint64_t> cc(cc_size);
 
+    std::array<uint64_t, 8> basis = {0};
     // TODO(me): use transpose matrix
     for (auto j = 0; j < to; ++j) {
-      for (size_t k = 0; k < cc_size; ++k) {
-        if (cc_list[k].match(input[i + j])) {
-          cc[k] |= (1ULL << j);
+      for (size_t k = 0; k < 8; ++k) {
+        if ((input[i + j] >> k) & 1) {
+          basis[k] |= (1ULL << j);
         }
       }
+    }
+
+#if PRINT
+    print_table(basis, "B");
+#endif
+
+    std::vector<uint64_t> cc(cc_size);
+    for (auto i = 0; i < cc_size; ++i) {
+      cc[i] = expr_compiler_cpp.execute(basis, expressions[i].get());
     }
 
 #if PRINT

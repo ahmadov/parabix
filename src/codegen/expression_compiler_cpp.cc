@@ -3,6 +3,57 @@
 using ExpressionCompilerCpp = codegen::ExpressionCompilerCpp;
 using ExprType = codegen::BitwiseExpression::Type;
 
+uint64_t ExpressionCompilerCpp::execute(std::array<uint64_t, 8>& basis, BitwiseExpression* expression) {
+   switch (expression->getType()) {
+      case ExprType::True:
+      case ExprType::False:
+      case ExprType::Bit: {
+         auto expr_ptr = dynamic_cast<Bit*>(expression);
+         return basis[expr_ptr->bit];
+      }
+      case ExprType::Not: {
+         auto expr_ptr = dynamic_cast<NotExpression*>(expression);
+         auto value = execute(basis, expr_ptr->child.get());
+         return ~value;
+      }
+      case ExprType::And: {
+         auto expr_ptr = dynamic_cast<BinaryExpression*>(expression);
+         if (expr_ptr->left->getType() == ExprType::Not) {
+            auto left_expr = execute(basis, dynamic_cast<NotExpression*>(expr_ptr->left.get())->child.get());
+            auto right_expr = execute(basis, expr_ptr->right.get());
+            // %rhs & ~%lhs
+            return right_expr & ~left_expr;
+         } else if (expr_ptr->right->getType() == ExprType::Not) {
+            auto left_expr = execute(basis, expr_ptr->left.get());
+            auto right_expr = execute(basis, dynamic_cast<NotExpression*>(expr_ptr->right.get())->child.get());
+            // %lhs & ~%rhs
+            return left_expr & ~right_expr;
+         } else {
+            auto left_expr = execute(basis, expr_ptr->left.get());
+            auto right_expr = execute(basis, expr_ptr->right.get());
+            // %lhs & %rhs
+            return left_expr & right_expr;
+         }
+      }
+      case ExprType::Or: {
+         auto expr_ptr = dynamic_cast<BinaryExpression*>(expression);
+         auto left_expr = execute(basis, expr_ptr->left.get());
+         auto right_expr = execute(basis, expr_ptr->right.get());
+         // %s | %s
+         return left_expr | right_expr;
+      }
+      case ExprType::Selection: {
+         auto expr_ptr = dynamic_cast<SelectionExpression*>(expression);
+         auto if_expr = execute(basis, expr_ptr->if_expr.get());
+         auto left_expr = execute(basis, expr_ptr->true_expr.get());
+         auto right_expr = execute(basis, expr_ptr->false_expr.get());
+         // (%s & true) | (~(%s) & false)
+         return (if_expr & left_expr) | (~if_expr & right_expr);
+      }
+   }
+   throw std::runtime_error{"unknown expression type"};
+}
+
 std::string ExpressionCompilerCpp::compile(BitwiseExpression& expression) {
    reset();
    output << "bool match(uint8_t value) {\n";

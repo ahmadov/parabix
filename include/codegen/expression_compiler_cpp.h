@@ -14,6 +14,8 @@ namespace codegen {
 
       std::string compile(BitwiseExpression& expression);
 
+      uint64_t execute(std::array<uint64_t, 8>& basis, BitwiseExpression* expression);
+
     private:
       std::stringstream output;
       uint32_t variable_counter;
