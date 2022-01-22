@@ -74,6 +74,9 @@ target_link_libraries(vgrep regex_vectorization)
 add_executable(vgrep_block tools/vgrep_block.cc)
 target_link_libraries(vgrep_block regex_vectorization)
 
+add_executable(vgrep_llvm tools/vgrep_llvm.cc)
+target_link_libraries(vgrep_llvm regex_vectorization)
+
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------

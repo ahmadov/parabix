@@ -20,7 +20,7 @@ namespace codegen {
 
     void compile(const std::vector<std::unique_ptr<BitwiseExpression>>& expressions, bool verbose = false);
 
-    void run(uint8_t, uint8_t*);
+    void run(uint64_t* basis, uint64_t* cc);
 
     private:
     /// The llvm context.
@@ -30,7 +30,7 @@ namespace codegen {
     /// The jit.
     JIT jit;
     /// The compiled function.
-    void (*fnPtr)(uint8_t, uint8_t*);
+    void (*fnPtr)(uint64_t*, uint64_t*);
 
   };
 

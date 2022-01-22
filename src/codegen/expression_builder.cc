@@ -32,10 +32,8 @@ ValueType ExpressionBuilder::codegen(BitwiseExpression* expression) {
 }
 
 ValueType ExpressionBuilder::createBit(Bit* expression, ValueType argument) {
-  if (expression->bit == 0) {
-    return builder.CreateAnd(argument, 1);
-  }
-  return builder.CreateAnd(builder.CreateLShr(argument, expression->bit), 1);
+  auto* array_idx = builder.CreateConstInBoundsGEP1_64(builder.getInt64Ty(), argument, expression->bit, "b_index");
+  return builder.CreateLoad(builder.getInt64Ty(), array_idx, "basis_" + std::to_string(expression->bit));
 }
 
 ValueType ExpressionBuilder::createAnd(BinaryExpression* expression) {
