@@ -40,18 +40,18 @@ void print_table(std::vector<uint64_t>& stream, std::string_view name) {
   }
 }
 
+// simplified version of https://mischasan.wordpress.com/2011/10/03/the-full-sse2-bit-matrix-transpose-routine/ 
 void transpose_sse(char *inp, uint8_t *out) {
-# define OUT(x,y) out[(y)*8 + (x)/8]
   int rr, i, h;
   union { __m128i x; uint8_t b[16]; } tmp{};
 
   // Do the main body in 16x8 blocks:
-  for (rr = 0; rr <= 48; rr += 16) {
+  for (rr = 0; rr < 4; ++rr) {
     for (i = 0; i < 16; ++i) {
-      tmp.b[i] = inp[rr + i];
+      tmp.b[i] = inp[rr * 16 + i];
     }
     for (i = 0; i < 8; ++i, tmp.x = _mm_slli_epi64(tmp.x, 1)) {
-      *reinterpret_cast<uint16_t*>(&OUT(rr,i))= _mm_movemask_epi8(tmp.x);
+      *reinterpret_cast<uint16_t*>(&out[(rr * 2) + (i * 8)]) = _mm_movemask_epi8(tmp.x);
     }
   }
 }
@@ -106,17 +106,10 @@ int main(int argc, char** argv) {
 #if PRINT
     std::cout << "processing block " << block << std::endl;
 #endif
-    auto to = std::min(block_size, input_size - i);
-
     transpose_sse(input.data() + i, output.data());
     
-    for (auto i = 0; i < 8; ++i) {
-       basis[i] = 0;
-       auto offset = (7 - i) * 8;
-       for (auto j = 0; j < 8; ++j) {
-        auto current = static_cast<uint64_t>(output[offset + j]);
-        basis[i] |= (current << (j * 8));
-       }
+    for (auto i = 0, j = 7; i < 8; ++i, --j) {
+       basis[i] = *reinterpret_cast<uint64_t*>(&output[static_cast<unsigned>(j * 8)]);
        basis[i] &= ~(1ULL << block_size);
     }
 
@@ -138,7 +131,7 @@ int main(int argc, char** argv) {
         auto M = marker[i];
         M &= cc[i];
         M += cc[i] + carry[i];
-        carry[i] = (M >> to) & 1;
+        carry[i] = (M >> block_size) & 1;
         M &= ~(1ULL << block_size);
         M ^= cc[i];
         M |= marker[i];
