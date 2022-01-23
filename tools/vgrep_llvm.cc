@@ -7,11 +7,10 @@
 #include <chrono> // NOLINT
 #include <immintrin.h>
 #include "PerfEvent.hpp"
-#include "codegen/operation_compiler.h"
 #include "parser/re_parser.h"
 #include "codegen/cc_compiler.h"
 #include "codegen/ast.h"
-#include "codegen/expression_compiler_llvm.h"
+#include "codegen/parabix_compiler.h"
 
 #ifndef PRINT
 #define PRINT false 
@@ -99,11 +98,8 @@ int main(int argc, char** argv) {
     expressions[i] = cc_compiler.compile(cc_list[i]);
   }
 
-  codegen::ExpressionCompiler expr_compiler(context);
-  expr_compiler.compile(expressions, false);
-
-  codegen::OperationCompiler operation_compiler(context);
-  operation_compiler.initialize(false);
+  codegen::ParabixCompiler compiler(context);
+  compiler.compile(expressions, false);
 
   auto markers_size = cc_size + 1;
   std::vector<uint64_t> cc(cc_size);
@@ -126,7 +122,7 @@ int main(int argc, char** argv) {
 #endif
 
     for (auto i = 0; i < cc_size; ++i) {
-      expr_compiler.run(basis.data(), cc.data());
+      compiler.runMatch(basis.data(), cc.data());
     }
 
 #if PRINT
@@ -136,11 +132,11 @@ int main(int argc, char** argv) {
     marker[0] = cc[0];
     for (size_t i = 0; i < cc_size; ++i) {
       if (cc_list[i].isStar()) {
-        auto result = operation_compiler.runMatchStar(marker[i], cc[i], carry[i]);
+        auto result = compiler.runMatchStar(marker[i], cc[i], carry[i]);
         carry[i] = result.carry;
         marker[i + 1] = result.marker;
       } else {
-        auto result = operation_compiler.runAdvance(marker[i], cc[i], carry[i]);
+        auto result = compiler.runAdvance(marker[i], cc[i], carry[i]);
         carry[i] = result.carry;
         marker[i + 1] = result.marker;
       }
