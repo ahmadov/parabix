@@ -7,6 +7,7 @@
 #include <chrono> // NOLINT
 #include <immintrin.h>
 #include "PerfEvent.hpp"
+#include "codegen/operation_compiler.h"
 #include "parser/re_parser.h"
 #include "codegen/cc_compiler.h"
 #include "codegen/ast.h"
@@ -101,6 +102,9 @@ int main(int argc, char** argv) {
   codegen::ExpressionCompiler expr_compiler(context);
   expr_compiler.compile(expressions, false);
 
+  codegen::OperationCompiler operation_compiler(context);
+  operation_compiler.initialize(false);
+
   auto markers_size = cc_size + 1;
   std::vector<uint64_t> cc(cc_size);
   std::vector<uint64_t> marker(markers_size);
@@ -132,22 +136,13 @@ int main(int argc, char** argv) {
     marker[0] = cc[0];
     for (size_t i = 0; i < cc_size; ++i) {
       if (cc_list[i].isStar()) {
-        auto M = marker[i];
-        M &= cc[i];
-        M += cc[i] + carry[i];
-        carry[i] = (M >> block_size) & 1;
-        M &= ~(1ULL << block_size);
-        M ^= cc[i];
-        M |= marker[i];
-        marker[i + 1] = M;
+        auto result = operation_compiler.runMatchStar(marker[i], cc[i], carry[i]);
+        carry[i] = result.carry;
+        marker[i + 1] = result.marker;
       } else {
-        auto M = marker[i];
-        M &= cc[i];
-        M <<= 1;
-        M |= carry[i];
-        carry[i] = (M >> block_size) & 1;
-        M &= ~(1ULL << block_size);
-        marker[i + 1] = M;
+        auto result = operation_compiler.runAdvance(marker[i], cc[i], carry[i]);
+        carry[i] = result.carry;
+        marker[i + 1] = result.marker;
       }
     }
 
