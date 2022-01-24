@@ -41,10 +41,13 @@ set(INCLUDE_H
     "${CMAKE_SOURCE_DIR}/include/codegen/expression_compiler_llvm.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/expression_builder.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/operation_compiler.h"
+    "${CMAKE_SOURCE_DIR}/include/codegen/parabix_compiler.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/ast.h"
     "${CMAKE_SOURCE_DIR}/include/codegen/jit.h"
     "${CMAKE_SOURCE_DIR}/include/operations/marker.h"
     "${CMAKE_SOURCE_DIR}/include/operations/simd.h"
+    "${CMAKE_SOURCE_DIR}/include/parabix/bit.h"
+    "${CMAKE_SOURCE_DIR}/include/parabix/parabix.h"
 )
 
 set(SRC_CC
@@ -55,7 +58,9 @@ set(SRC_CC
     "${CMAKE_SOURCE_DIR}/src/codegen/expression_compiler_llvm.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/expression_builder.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/operation_compiler.cc"
+    "${CMAKE_SOURCE_DIR}/src/codegen/parabix_compiler.cc"
     "${CMAKE_SOURCE_DIR}/src/codegen/jit.cc"
+    "${CMAKE_SOURCE_DIR}/src/parabix/parabix.cc"
     "${CMAKE_SOURCE_DIR}/tools/vgrep.cc"
 )
 
