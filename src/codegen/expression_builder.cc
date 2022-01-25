@@ -15,7 +15,7 @@ ValueType ExpressionBuilder::codegen(BitwiseExpression* expression) {
   }
   switch(expression->getType()) {
     case ExprType::Bit:
-      return cache[as_string] = createBit(dynamic_cast<Bit*>(expression), arguments[0]);
+      return cache[as_string] = createBit(dynamic_cast<Bit*>(expression), cc);
     case ExprType::And:
       return cache[as_string] = createAnd(dynamic_cast<BinaryExpression*>(expression));
     case ExprType::Or:

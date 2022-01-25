@@ -118,8 +118,7 @@ uint64_t parabix::parabix_cpp(std::string& input, const char* pattern) {
 }
 
 uint64_t parabix::parabix_llvm(llvm::orc::ThreadSafeContext& context, std::string& input, const char* pattern) {
-    parser::ReParser parser;
-  codegen::CCCompiler cc_compiler;
+  parser::ReParser parser;
 
   auto cc_list = parser.parse(pattern);
   auto input_size = input.length();
@@ -127,23 +126,17 @@ uint64_t parabix::parabix_llvm(llvm::orc::ThreadSafeContext& context, std::strin
 
   size_t block_size = 63;
   uint64_t matched = 0;
-  std::vector<bool> carry(cc_size, false);
 
 #if PRINT
   std::cout << "    " << input << std::endl;
 #endif
 
-  std::vector<std::unique_ptr<codegen::BitwiseExpression>> expressions(cc_size);
-  for (auto i = 0; i < cc_size; ++i) {
-    expressions[i] = cc_compiler.compile(cc_list[i]);
-  }
-
   codegen::ParabixCompiler compiler(context);
-  compiler.compile(expressions, false);
+  compiler.compile(cc_list, false);
 
-  auto markers_size = cc_size + 1;
   std::vector<uint64_t> cc(cc_size);
-  std::vector<uint64_t> marker(markers_size);
+  std::vector<uint64_t> carry(cc_size);
+  std::vector<uint64_t> marker(cc_size + 1);
   std::array<uint8_t, 64> output;
   std::array<uint64_t, 8> basis;
   for (size_t i = 0, block = 0; i < input_size; i += block_size, ++block) {
@@ -157,32 +150,11 @@ uint64_t parabix::parabix_llvm(llvm::orc::ThreadSafeContext& context, std::strin
        basis[i] &= ~(1ULL << block_size);
     }
 
+    compiler.run(basis.data(), cc.data(), marker.data(), carry.data());
+
 #if PRINT
     print_basis_table(basis, "B");
-#endif
-
-    for (auto i = 0; i < cc_size; ++i) {
-      compiler.runMatch(basis.data(), cc.data());
-    }
-
-#if PRINT
     print_table(cc, "CC");
-#endif
-
-    marker[0] = cc[0];
-    for (size_t i = 0; i < cc_size; ++i) {
-      if (cc_list[i].isStar()) {
-        auto result = compiler.runMatchStar(marker[i], cc[i], carry[i]);
-        carry[i] = result.carry;
-        marker[i + 1] = result.marker;
-      } else {
-        auto result = compiler.runAdvance(marker[i], cc[i], carry[i]);
-        carry[i] = result.carry;
-        marker[i + 1] = result.marker;
-      }
-    }
-
-#if PRINT
     print_table(marker, "M");
 #endif
 

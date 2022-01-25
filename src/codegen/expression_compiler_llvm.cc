@@ -25,7 +25,7 @@ void ExpressionCompiler::compile(const std::vector<std::unique_ptr<BitwiseExpres
       throw std::runtime_error{"LLVM: foo() does not have enough arguments"};
   }
 
-  ExpressionBuilder expression_builder(builder, matchFnArgs);
+  ExpressionBuilder expression_builder(builder, matchFnArgs[0]);
   llvm::Value* arr = matchFnArgs[1];
 
   for (size_t i = 0, end = expressions.size(); i < end; ++i) {
