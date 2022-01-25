@@ -12,39 +12,17 @@ namespace codegen {
   class OperationBuilder {
     public:
 
-      explicit OperationBuilder(
-        llvm::IRBuilder<>& builder,
-        const std::vector<parser::CC>& cc_list,
-        llvm::Value* cc_bit_stream,
-        llvm::Value* marker_bit_stream,
-        llvm::Value* carry_bit_stream
-      )
-        : builder(builder)
-        , cc_list(cc_list)
-        , cc_bit_stream(cc_bit_stream) 
-        , marker_bit_stream(marker_bit_stream) 
-        , carry_bit_stream(carry_bit_stream) {
-        initializeGEPs();
-      }
+      explicit OperationBuilder(llvm::IRBuilder<>& builder)
+        : builder(builder) {}
 
-      void codegen();
+      std::pair<llvm::Value*, llvm::Value*>  codegen(const parser::CC& cc, llvm::Value* cc_bit_stream, llvm::Value* marker_bit_stream, llvm::Value* carry);
 
     private:
-      void initializeGEPs();
-    
-      void buildMatchStar(size_t index);
+      std::pair<llvm::Value*, llvm::Value*> buildAdvance(llvm::Value* CC, llvm::Value* M, llvm::Value* CARRY);
 
-      void buildAdvance(size_t index);
+      std::pair<llvm::Value*, llvm::Value*> buildMatchStar(llvm::Value* CC, llvm::Value* M, llvm::Value* CARRY);
 
       llvm::IRBuilder<>& builder;
-      std::vector<parser::CC> cc_list;
-      llvm::Value* cc_bit_stream;
-      llvm::Value* marker_bit_stream;
-      llvm::Value* carry_bit_stream;
-
-      std::vector<llvm::Value*> marker_ptr;
-      std::vector<llvm::Value*> cc_ptr;
-      std::vector<llvm::Value*> carry_ptr;
   };
 
 } // namespace codegen
