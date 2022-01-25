@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
   llvm::orc::ThreadSafeContext context(std::make_unique<llvm::LLVMContext>());
 
   auto pattern = "a[0-9]*z";
-  std::vector<std::string> files = {"10mb.txt", "100mb.txt", "500mb.txt", "1gb.txt"};
+  std::vector<std::string> files = {"10mb.txt", "100mb.txt", "500mb.txt", "1gb.txt", "1_2gb.txt"};
   std::vector<std::string> algorithms = {"std::regex", "parabix-cpp", "parabix-llvm"};
   std::vector<std::vector<double>> elapsed_times(files.size(), std::vector<double>(algorithms.size()));
 
