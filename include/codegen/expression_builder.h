@@ -11,9 +11,9 @@ namespace codegen {
   class ExpressionBuilder {
     public:
 
-      explicit ExpressionBuilder(llvm::IRBuilder<>& builder, llvm::Value* cc)
+      explicit ExpressionBuilder(llvm::IRBuilder<>& builder, llvm::Value* basis)
         : builder(builder)
-        , cc(cc) {}
+        , basis(basis) {}
 
       llvm::Value* codegen(BitwiseExpression* expression);
 
@@ -29,7 +29,7 @@ namespace codegen {
 
     private:
       llvm::IRBuilder<>& builder;
-      llvm::Value* cc;
+      llvm::Value* basis;
       std::unordered_map<std::string, llvm::Value*> cache;
   };
 
