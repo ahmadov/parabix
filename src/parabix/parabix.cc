@@ -117,7 +117,7 @@ uint64_t parabix::parabix_cpp(std::string& input, const char* pattern) {
   return matched;
 }
 
-uint64_t parabix::parabix_llvm(llvm::orc::ThreadSafeContext& context, std::string& input, const char* pattern) {
+uint64_t parabix::parabix_llvm(llvm::orc::ThreadSafeContext& context, std::string& input, const char* pattern, bool verbose) {
   parser::ReParser parser;
 
   auto cc_list = parser.parse(pattern);
@@ -132,7 +132,7 @@ uint64_t parabix::parabix_llvm(llvm::orc::ThreadSafeContext& context, std::strin
 #endif
 
   codegen::ParabixCompiler compiler(context);
-  compiler.compile(cc_list, false);
+  compiler.compile(cc_list, verbose);
 
   std::vector<uint64_t> cc(cc_size);
   std::vector<uint64_t> carry(cc_size);

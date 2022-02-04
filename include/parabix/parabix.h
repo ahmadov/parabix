@@ -6,6 +6,6 @@ namespace parabix {
 
   uint64_t parabix_cpp(std::string& input, const char* pattern);
 
-  uint64_t parabix_llvm(llvm::orc::ThreadSafeContext& context, std::string& input, const char* pattern);
+  uint64_t parabix_llvm(llvm::orc::ThreadSafeContext& context, std::string& input, const char* pattern, bool verbose = false);
 
 } // namespace parabix

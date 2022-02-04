@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
   PerfEvent e;
   e.startCounters();
 
-  std::cout << "matched = " << parabix::parabix_llvm(context, input, pattern) << std::endl;
+  std::cout << "matched = " << parabix::parabix_llvm(context, input, pattern, false) << std::endl;
 
   e.stopCounters();
   e.printReport(std::cout, input.size()); // use n as scale factor
