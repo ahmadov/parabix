@@ -1,0 +1,32 @@
+# ---------------------------------------------------------------------------
+# Parabix
+# ---------------------------------------------------------------------------
+
+stages:
+    - generate
+    - benchmark
+
+input generator:
+    stage: generate
+    when: manual
+    script:
+        - mkdir -p input
+        - mkdir -p build
+        - cd build
+        - cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
+        - ninja generator
+        - ./generator 10 ../input/10mb.txt
+        - ./generator 50 ../input/50mb.txt
+        - ./generator 100 ../input/100mb.txt
+        - ./generator 500 ../input/500mb.txt
+        - ./generator 1000 ../input/1gb.txt
+
+run benchmark:
+    stage: benchmark
+    when: manual
+    script:
+        - mkdir -p build
+        - cd build
+        - cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
+        - ninja benchmark
+        - ./benchmark
