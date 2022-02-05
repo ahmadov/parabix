@@ -3,11 +3,10 @@
 # ---------------------------------------------------------------------------
 
 stages:
-    - generate
     - benchmark
 
-input generator:
-    stage: generate
+run benchmark:
+    stage: benchmark
     when: manual
     variables:
       GIT_SUBMODULE_STRATEGY: recursive
@@ -24,17 +23,5 @@ input generator:
         - ./generator 100 ../input/100mb.txt
         - ./generator 500 ../input/500mb.txt
         - ./generator 1000 ../input/1gb.txt
-
-run benchmark:
-    stage: benchmark
-    when: manual
-    variables:
-      GIT_SUBMODULE_STRATEGY: recursive
-    before_script:
-      - git submodule update --recursive --remote
-    script:
-        - mkdir -p build
-        - cd build
-        - cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
         - ninja benchmark
         - ./benchmark
