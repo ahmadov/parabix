@@ -9,6 +9,10 @@ stages:
 input generator:
     stage: generate
     when: manual
+    variables:
+      GIT_SUBMODULE_STRATEGY: recursive
+    before_script:
+      - git submodule update --recursive --remote
     script:
         - mkdir -p input
         - mkdir -p build
@@ -24,6 +28,10 @@ input generator:
 run benchmark:
     stage: benchmark
     when: manual
+    variables:
+      GIT_SUBMODULE_STRATEGY: recursive
+    before_script:
+      - git submodule update --recursive --remote
     script:
         - mkdir -p build
         - cd build
