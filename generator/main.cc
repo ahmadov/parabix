@@ -112,14 +112,20 @@ void generate_fp(std::ofstream& output, int32_t size_in_mb) {
   for (auto i = 0; i < at_least; ++i) {
     for (auto& generated_str : generated_strings) output << generated_str;
   }
-  auto left = required_size_in_bytes - (generated_size_in_bytes * at_least);
+  auto total_size = at_least * generated_size_in_bytes;
+  auto left = required_size_in_bytes - total_size;
   for (auto& generated_str : generated_strings) {
     if (left <= 0) {
       break;
     }
     output << generated_str;
-    left -= static_cast<int32_t>(generated_str.size());
+    auto size = static_cast<int32_t>(generated_str.size());
+    left -= size;
+    total_size += size;
   };
+  for (; total_size % 63; total_size++) {
+    output << "-";
+  }
 }
 
 int main(int argc, char** argv) {
