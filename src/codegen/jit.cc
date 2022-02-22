@@ -1,6 +1,5 @@
 #include "codegen/jit.h"
 
-#include <llvm/ExecutionEngine/Orc/ExecutorProcessControl.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
@@ -33,7 +32,7 @@ static void optimizeModule(llvm::Module& module) {
 JIT::JIT(llvm::orc::ThreadSafeContext& ctx)
   : target_machine(llvm::EngineBuilder().selectTarget()),
     data_layout(target_machine->createDataLayout()),
-    execution_session(std::move(*llvm::orc::SelfExecutorProcessControl::Create())),
+    execution_session(),
     context(ctx),
     object_layer(execution_session, []() { return std::make_unique<llvm::SectionMemoryManager>(); }),
     compile_layer(execution_session, object_layer, std::make_unique<llvm::orc::SimpleCompiler>(*target_machine)),

@@ -7,6 +7,7 @@ using CC = parser::CC;
 const std::vector<CC>& ReParser::parse(const char* input) {
   input_ = input;
   pos_ = 0;
+  cc_list_.clear();
   parse();
   return cc_list_;
 }

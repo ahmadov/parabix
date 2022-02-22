@@ -53,16 +53,28 @@ void ParabixCompiler::compileRun(const std::vector<parser::CC>& cc_list) {
 
   CCCompiler cc_compiler;
   ExpressionBuilder expression_builder(builder, basis);
-  OperationBuilder operation_builder(builder, cc_list, cc, marker, carry);
+  OperationBuilder operation_builder(builder);
 
   for (size_t i = 0, end = cc_list.size(); i < end; ++i) {
     auto expression = cc_compiler.compile(cc_list[i]);
-    auto* expr_value = expression_builder.codegen(expression.get());
-    auto* array_idx = builder.CreateConstInBoundsGEP1_64(builder.getInt64Ty(), cc, i, "arrayidx");
-    builder.CreateStore(expr_value, array_idx);
-  }
+    auto* cc_value = expression_builder.codegen(expression.get());
+    auto* cc_ptr = builder.CreateConstInBoundsGEP1_64(builder.getInt64Ty(), cc, i, "cc_ptr");
+    builder.CreateStore(cc_value, cc_ptr);
 
-  operation_builder.codegen();
+    auto* marker_ptr = builder.CreateConstInBoundsGEP1_64(builder.getInt64Ty(), marker, i, "marker_ptr");
+    auto* carry_ptr = builder.CreateConstInBoundsGEP1_64(builder.getInt64Ty(), carry, i, "carry_ptr");
+    if (i == 0) {
+      builder.CreateStore(cc_value, marker_ptr);
+    }
+
+    auto marker_value = builder.CreateLoad(builder.getInt64Ty(), marker_ptr);
+    auto carry_value = builder.CreateLoad(builder.getInt64Ty(), carry_ptr);
+    auto [next_marker, next_carry] = operation_builder.codegen(cc_list[i], cc_value, marker_value, carry_value);
+
+    auto* next_marker_ptr = builder.CreateConstInBoundsGEP1_64(builder.getInt64Ty(), marker, i + 1, "next_marker_ptr");
+    builder.CreateStore(next_marker, next_marker_ptr);
+    builder.CreateStore(next_carry, carry_ptr);
+  }
 
   builder.CreateRetVoid();
 }
