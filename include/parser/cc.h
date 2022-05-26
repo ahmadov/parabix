@@ -6,7 +6,6 @@
 #include <ostream>
 #include <sstream>
 #include <string>
-#include <string_view>
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 namespace parser {
@@ -20,8 +19,6 @@ class CC {
       , star_(star) {}
 
     [[nodiscard]] std::vector<std::pair<char, char>> getRanges() const { return ranges; }
-
-    // [[nodiscard]] constexpr bool isScanThru() const { return ranges.size() > 1; }
 
     [[nodiscard]] constexpr bool isStar() const { return star_; }
 

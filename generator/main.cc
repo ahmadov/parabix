@@ -71,7 +71,7 @@ void generate(const std::vector<GeneratorInput>& generator_inputs, std::vector<s
   }
 }
 
-void generate_fp(std::ofstream& output, int32_t size_in_mb) {
+void generate_pattern(std::ofstream& output, int32_t size_in_mb) {
   // a[0-9]*z
   std::vector<GeneratorInput> always_matching_pattern = {
     {.pattern = "[a-zA-Z]", .star  = false, .random = true},
@@ -129,18 +129,17 @@ void generate_fp(std::ofstream& output, int32_t size_in_mb) {
 }
 
 int main(int argc, char** argv) {
-
-  if (argc != 3) {
-    std::cerr << argv[0] << " [size_in_mb] [first_pattern_output]";
+  if (argc < 3) {
+    std::cerr << argv[0] << " [size_in_mb] [output file]";
     exit(1);
   }
 
   auto size_in_mb = atoi(argv[1]);
-  std::ofstream fp_ostream(argv[2]);
+  std::ofstream output_stream(argv[2]);
 
-  generate_fp(fp_ostream, size_in_mb); // a[0-9]*z
+  generate_pattern(output_stream, size_in_mb); // a[0-9]*z
 
-  fp_ostream.close();
+  output_stream.close();
 
   return 0;
 }

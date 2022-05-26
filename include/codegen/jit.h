@@ -48,7 +48,6 @@ namespace codegen {
         explicit JIT(llvm::orc::ThreadSafeContext& ctx);
 
         ~JIT() {
-          // copied from https://github.com/llvm/llvm-project/blob/705c722ba5eeaea732d069c39a1b05de9dc2ca6d/llvm/examples/Kaleidoscope/BuildingAJIT/Chapter4/KaleidoscopeJIT.h#L165
           if (auto error = execution_session.endSession()) {
             execution_session.reportError(std::move(error));
           }
